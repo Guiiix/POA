@@ -9,6 +9,7 @@
 
 class Labyrinthe : public Environnement {
 private:
+	char**	_conflicts_mat;
 	char	_data [LAB_WIDTH][LAB_HEIGHT];
 	int		_nlines;
 	int		_nrows;
@@ -16,6 +17,7 @@ private:
 	bool	_is_empty_line(std::string);
 	char	_get_first_char(std::string);
 	void	_check_line_objects(std::string);
+	void	_create_conflicts_mat(std::ifstream&);
 
 public:
 	Labyrinthe (char*);

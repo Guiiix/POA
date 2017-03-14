@@ -106,7 +106,9 @@ bool Labyrinthe::_parse_map(char* filename)
 		char first;
 		string labyrinthe = "";
 		bool pics_confd = false;
-		
+		streampos lab_offset = 0;
+		streampos line_offset;
+
 		while (getline(file, line))
 		{
 			// On ne se soucie pas des lignes vides
@@ -127,7 +129,12 @@ bool Labyrinthe::_parse_map(char* filename)
 				}
 
 				// La définition du labyrinthe commence forcément par un angle
-				else if (first == '+') pics_confd = true;
+				else if (first == '+') 
+				{
+					pics_confd = true;
+					lab_offset = line_offset;
+				}
+
 				else
 				{
 					cout << "Fichier labyrinthe malformé" << endl;
@@ -139,15 +146,15 @@ bool Labyrinthe::_parse_map(char* filename)
 			{
 				this->_nlines++;
 				if (this->_nrows < line.length()) this->_nrows = line.length();
-				
-				labyrinthe += line + "\n";
 			}
 			
 			cout << line << endl;
+			line_offset = file.tellg();
 		}
 
-		file.close();
-		cout << labyrinthe << endl;
+		file.clear();
+		file.seekg(lab_offset);
+		this->_create_conflicts_mat(file);
 	}
 
 	else
@@ -190,6 +197,20 @@ void Labyrinthe::_check_line_objects(string line)
 				break;
 			default:
 				break;
+		}
+	}
+}
+
+void Labyrinthe::_create_conflicts_mat(ifstream &file)
+{
+	// Initialisation de la matrice de positions 
+	this->_conflicts_mat = new char*[this->_nlines];
+	for (int i = 0; i < this->_nlines; i++)
+	{
+		this->_conflicts_mat[i] = new char[this->_nrows];
+		for (int j = 0; j < this->_nrows; j++)
+		{
+			this->_conflicts_mat[i][j] = 1;
 		}
 	}
 }
