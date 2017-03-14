@@ -110,14 +110,12 @@ bool Labyrinthe::_parse_map(char* filename)
 		while (getline(file, line))
 		{
 			// On ne se soucie pas des lignes vides
-			if (_is_empty_line(line))
-				continue;
+			if (_is_empty_line(line)) continue;
 
 			first = this->_get_first_char(line);
 
 			// On passe les lignes commentées
-			if (first == '#')
-				continue;
+			if (first == '#') continue;
 
 			// La carte du labyrithe commence forcément par un angle si le fichier
 			// est bien formé
@@ -129,9 +127,7 @@ bool Labyrinthe::_parse_map(char* filename)
 				}
 
 				// La définition du labyrinthe commence forcément par un angle
-				else if (first == '+')
-					pics_confd = true;
-				
+				else if (first == '+') pics_confd = true;
 				else
 				{
 					cout << "Fichier labyrinthe malformé" << endl;
@@ -142,9 +138,9 @@ bool Labyrinthe::_parse_map(char* filename)
 			if (pics_confd)
 			{
 				this->_nlines++;
-				labyrinthe += line + "\n";
+				if (this->_nrows < line.length()) this->_nrows = line.length();
 				
-				this->_check_line_objects(line);
+				labyrinthe += line + "\n";
 			}
 			
 			cout << line << endl;
