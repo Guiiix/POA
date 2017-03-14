@@ -2,9 +2,14 @@
 #include "Chasseur.h"
 #include "Gardien.h"
 
+#include <iostream>
+#include <fstream>
+
 Sound*	Chasseur::_hunter_fire;	// bruit de l'arme du chasseur.
 Sound*	Chasseur::_hunter_hit;	// cri du chasseur touché.
 Sound*	Chasseur::_wall_hit;	// on a tapé un mur.
+
+using namespace std;
 
 Environnement* Environnement::init (char* filename)
 {
@@ -14,6 +19,20 @@ Environnement* Environnement::init (char* filename)
 
 Labyrinthe::Labyrinthe (char* filename)
 {
+	this->_nwall = 0;
+	this->_npicts = 0;
+	this->_nboxes = 0;
+	this->_nguards = 0;
+	this->_nlines =  0;
+	this->_nrows = 0;
+
+	this->_parse_map(filename);
+	
+	cout << "N walls : " << this->_nwall << endl;
+	cout << "N picts : " << this->_npicts << endl;
+	cout << "N boxes : " << this->_nboxes << endl;
+	cout << "N guards : " << this->_nguards << endl;
+	return;
 	// les 4 murs.
 	static Wall walls [] = {
 		{ 0, 0, LAB_WIDTH-1, 0, 0 },
@@ -75,4 +94,106 @@ Labyrinthe::Labyrinthe (char* filename)
 	_data [(int)(_guards [2] -> _x / scale)][(int)(_guards [2] -> _y / scale)] = 1;
 	_data [(int)(_guards [3] -> _x / scale)][(int)(_guards [3] -> _y / scale)] = 1;
 	_data [(int)(_guards [4] -> _x / scale)][(int)(_guards [4] -> _y / scale)] = 1;
+}
+
+bool Labyrinthe::_parse_map(char* filename)
+{
+	ifstream file (filename);
+	
+	if (file.is_open())
+	{
+		string line;
+		char first;
+		string labyrinthe = "";
+		bool pics_confd = false;
+		
+		while (getline(file, line))
+		{
+			// On ne se soucie pas des lignes vides
+			if (_is_empty_line(line))
+				continue;
+
+			first = this->_get_first_char(line);
+
+			// On passe les lignes commentées
+			if (first == '#')
+				continue;
+
+			// La carte du labyrithe commence forcément par un angle si le fichier
+			// est bien formé
+			if (!pics_confd)
+			{
+				if (islower(first))
+				{
+					// Configuration des images
+				}
+
+				// La définition du labyrinthe commence forcément par un angle
+				else if (first == '+')
+					pics_confd = true;
+				
+				else
+				{
+					cout << "Fichier labyrinthe malformé" << endl;
+					return false;
+				}
+			}
+
+			if (pics_confd)
+			{
+				this->_nlines++;
+				labyrinthe += line + "\n";
+				
+				this->_check_line_objects(line);
+			}
+			
+			cout << line << endl;
+		}
+
+		file.close();
+		cout << labyrinthe << endl;
+	}
+
+	else
+	{
+		cout << "Le fichier " << filename << " n'existe pas." << endl;
+		return false;
+	}
+
+	return true;
+}
+
+// Renvoi vrai si la ligne est vide ou ne contient que des espaces.
+// Dans le cas contraire, renvoi faux.
+bool Labyrinthe::_is_empty_line(string str)
+{ 
+	return (str.find_first_not_of(' ') == std::string::npos); 
+}
+
+// Récupère le premier caractère d'une chaine de caractères autre qu'un espace.
+// Suppose que la chaine de passée en paramètre contient au moins un caractère
+// autre qu'un espace
+char Labyrinthe::_get_first_char(string str)
+{
+	int i = -1;
+	while (++i < str.length() && str[i] == ' ');
+	return str[i];
+}
+
+void Labyrinthe::_check_line_objects(string line)
+{
+	for (int i = 0; i < line.length(); i++)
+	{
+		switch(line[i])
+		{
+			case 'x':
+				this->_nboxes++;
+				break;
+			case 'G':
+				this->_nguards++;
+				break;
+			default:
+				break;
+		}
+	}
 }

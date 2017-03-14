@@ -2,6 +2,7 @@
 #define LABYRINTHE_H
 
 #include "Environnement.h"
+#include <string>
 
 #define	LAB_WIDTH	80
 #define	LAB_HEIGHT	25
@@ -9,6 +10,12 @@
 class Labyrinthe : public Environnement {
 private:
 	char	_data [LAB_WIDTH][LAB_HEIGHT];
+	int		_nlines;
+	int		_nrows;
+	bool	_parse_map(char*);
+	bool	_is_empty_line(std::string);
+	char	_get_first_char(std::string);
+	void	_check_line_objects(std::string);
 
 public:
 	Labyrinthe (char*);
