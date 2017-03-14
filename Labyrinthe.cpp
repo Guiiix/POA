@@ -145,7 +145,7 @@ bool Labyrinthe::_parse_map(char* filename)
 			if (pics_confd)
 			{
 				this->_nlines++;
-				if (this->_nrows < line.length()) this->_nrows = line.length();
+				if (this->_nrows < (int)line.length()) this->_nrows = line.length();
 			}
 			
 			cout << line << endl;
@@ -179,13 +179,13 @@ bool Labyrinthe::_is_empty_line(string str)
 char Labyrinthe::_get_first_char(string str)
 {
 	int i = -1;
-	while (++i < str.length() && str[i] == ' ');
+	while (++i < (int)str.length() && str[i] == ' ');
 	return str[i];
 }
 
 void Labyrinthe::_check_line_objects(string line)
 {
-	for (int i = 0; i < line.length(); i++)
+	for (int i = 0; i < (int)line.length(); i++)
 	{
 		switch(line[i])
 		{
