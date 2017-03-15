@@ -1,4 +1,4 @@
-# un commentaire commence par #
+# un commentaire commence par #w
 
 a	affiche1.jpg	# texture de l'affiche 1
 b	affiche2.jpg	# texture de l'affiche 2
@@ -7,9 +7,9 @@ b	affiche2.jpg	# texture de l'affiche 2
 +--------------a----------+
 |                         |
 |    C                    |
-|              G          |
+|            G            |
 |                         |
-|             G           |
+|                         |
 |                         |
 |               x      T  |
 |                         |

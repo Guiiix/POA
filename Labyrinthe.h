@@ -19,6 +19,7 @@ private:
 	void	_check_line_objects(std::string);
 	void	_fill_data(std::ifstream&);
 	void	_create_walls(std::ifstream&);
+	void	_debug(void);
 
 public:
 	Labyrinthe (char*);

@@ -28,13 +28,8 @@ Labyrinthe::Labyrinthe (char* filename)
 	this->_nrows = 0;
 
 	this->_parse_map(filename);
+	this->_debug();
 	
-	cout << "N walls : " << this->_nwall << endl;
-	cout << "N picts : " << this->_npicts << endl;
-	cout << "N boxes : " << this->_nboxes << endl;
-	cout << "N guards : " << this->_nguards << endl;
-	cout << "N lines : " << this->_nlines << endl;
-	cout << "N rows : " << this->_nrows << endl;
 
 	/*return;
 	// les 4 murs.
@@ -170,10 +165,7 @@ bool Labyrinthe::_parse_map(char* filename)
 					}
 
 					if (line[i] == 'G') this->_nguards++;
-
-					cout << line[i];
 				}
-				cout << endl;
 			}
 			
 			line_offset = file.tellg();
@@ -317,7 +309,7 @@ void Labyrinthe::_fill_data(ifstream &file)
 				break;
 
 				case 'G': // Placement des gardiens
-					this->_guards[defined_guards] = new Gardien (this, "Marvin");
+					this->_guards[defined_guards] = new Gardien (this, "garde");
 					this->_guards[defined_guards]->_x = x;
 					this->_guards[defined_guards]->_y = y;
 				break;
@@ -369,7 +361,6 @@ void Labyrinthe::_create_walls(ifstream &file)
 			{
 				if (line_wall_b)
 				{
-					cout << "making - wall" << endl;
 					this->_walls[defined_walls]._x1 = line_wall_index[0];
 					this->_walls[defined_walls]._y1 = line_wall_index[1];
 					this->_walls[defined_walls]._x2 = x;
@@ -380,7 +371,6 @@ void Labyrinthe::_create_walls(ifstream &file)
 
 				if (tab_walls_b[y])
 				{
-					cout << "making | wall" << endl;
 					this->_walls[defined_walls]._x1 = tab_walls_index[y][0];
 					this->_walls[defined_walls]._y1 = tab_walls_index[y][1];
 					this->_walls[defined_walls]._x2 = x;
@@ -416,11 +406,19 @@ void Labyrinthe::_create_walls(ifstream &file)
 
 		x++;
 	}
+}
 
-	for (int i = 0; i < this->_nwall; i++)
-	{
-		cout << "WALL " << i + 1 << endl;
-		cout << this->_walls[i]._x1 << ";" << this->_walls[i]._y1 << " " << this->_walls[i]._x2 << ";" << this->_walls[i]._y2 << endl;
-		cout << endl;
-	}
+void Labyrinthe::_debug()
+{
+	cout << "N walls : " << this->_nwall << endl;
+	cout << "N picts : " << this->_npicts << endl;
+	cout << "N boxes : " << this->_nboxes << endl;
+	cout << "N guards : " << this->_nguards << endl;
+	cout << "N lines : " << this->_nlines << endl;
+	cout << "N rows : " << this->_nrows << endl;
+
+	for (int i = 0; i < this->_nwall; i++) cout << "WALL " << i + 1 << ": " << this->_walls[i]._x1 << ";" << this->_walls[i]._y1 << " " << this->_walls[i]._x2 << ";" << this->_walls[i]._y2 << endl;
+	for (int i = 0; i < this->_nguards+1; i++) cout << "GUARD " << i + 1 << ": " << this->_guards[i]->_x << ";" << this->_guards[i]->_y << endl;
+	for (int i = 0; i < this->_nboxes; i++) cout << "BOXE " << i + 1 << ": " << this->_boxes[i]._x << ";" << this->_boxes[i]._y << endl;
+	cout << "TREASOR: " << this->_treasor._x << ";" << this->_treasor._y << endl;
 }
