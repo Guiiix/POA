@@ -374,6 +374,7 @@ void Labyrinthe::_create_walls(ifstream &file)
 					this->_walls[defined_walls]._y1 = line_wall_index[1];
 					this->_walls[defined_walls]._x2 = x;
 					this->_walls[defined_walls]._y2 = y;
+					this->_walls[defined_walls]._ntex = 0;
 					defined_walls++;
 				}
 
@@ -384,6 +385,7 @@ void Labyrinthe::_create_walls(ifstream &file)
 					this->_walls[defined_walls]._y1 = tab_walls_index[y][1];
 					this->_walls[defined_walls]._x2 = x;
 					this->_walls[defined_walls]._y2 = y;
+					this->_walls[defined_walls]._ntex = 0;
 					defined_walls++;
 				}
 
