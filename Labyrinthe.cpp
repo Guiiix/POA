@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <strings.h>
 
 Sound*	Chasseur::_hunter_fire;	// bruit de l'arme du chasseur.
 Sound*	Chasseur::_hunter_hit;	// cri du chasseur touché.
@@ -32,7 +33,10 @@ Labyrinthe::Labyrinthe (char* filename)
 	cout << "N picts : " << this->_npicts << endl;
 	cout << "N boxes : " << this->_nboxes << endl;
 	cout << "N guards : " << this->_nguards << endl;
-	return;
+	cout << "N lines : " << this->_nlines << endl;
+	cout << "N rows : " << this->_nrows << endl;
+
+	/*return;
 	// les 4 murs.
 	static Wall walls [] = {
 		{ 0, 0, LAB_WIDTH-1, 0, 0 },
@@ -93,7 +97,8 @@ Labyrinthe::Labyrinthe (char* filename)
 	_data [(int)(_guards [1] -> _x / scale)][(int)(_guards [1] -> _y / scale)] = 1;
 	_data [(int)(_guards [2] -> _x / scale)][(int)(_guards [2] -> _y / scale)] = 1;
 	_data [(int)(_guards [3] -> _x / scale)][(int)(_guards [3] -> _y / scale)] = 1;
-	_data [(int)(_guards [4] -> _x / scale)][(int)(_guards [4] -> _y / scale)] = 1;
+	_data [(int)(_guards [4] -> _x / scale)][(int)(_guards [4] -> _y / scale)] = 1;*/
+
 }
 
 bool Labyrinthe::_parse_map(char* filename)
@@ -102,26 +107,32 @@ bool Labyrinthe::_parse_map(char* filename)
 	
 	if (file.is_open())
 	{
-		string line;
 		char first;
-		string labyrinthe = "";
-		bool pics_confd = false;
-		streampos lab_offset = 0;
+		bool beign_lab;
+		string line;
+		streampos lab_offset;
 		streampos line_offset;
+		
+		beign_lab = false;
+		lab_offset = 0;
 
 		while (getline(file, line))
 		{
 			// On ne se soucie pas des lignes vides
-			if (_is_empty_line(line)) continue;
+			if (_is_empty_line(line))
+			{
+				// Récupération de la position de la ligne courant dans le fichier
+				line_offset = file.tellg();
+				continue;
+			}
 
 			first = this->_get_first_char(line);
 
 			// On passe les lignes commentées
 			if (first == '#') continue;
 
-			// La carte du labyrithe commence forcément par un angle si le fichier
-			// est bien formé
-			if (!pics_confd)
+			// Partie supérieure du fichier, configuration des images
+			if (!beign_lab)
 			{
 				if (islower(first))
 				{
@@ -131,7 +142,9 @@ bool Labyrinthe::_parse_map(char* filename)
 				// La définition du labyrinthe commence forcément par un angle
 				else if (first == '+') 
 				{
-					pics_confd = true;
+					beign_lab = true;
+
+					// Récupération de la position à laquelle la déclaration du labyrinthe commence
 					lab_offset = line_offset;
 				}
 
@@ -142,19 +155,53 @@ bool Labyrinthe::_parse_map(char* filename)
 				}
 			}
 
-			if (pics_confd)
+			// Partie inférieure du fichier, déclaration du labyrinthe
+			if (beign_lab)
 			{
 				this->_nlines++;
 				if (this->_nrows < (int)line.length()) this->_nrows = line.length();
+
+				for (unsigned int i = 0; i < line.length(); i++)
+				{
+					if (islower(line[i]))
+					{
+						if (line[i] == 'x') this->_nboxes++;
+						else this->_npicts++;
+					}
+
+					if (line[i] == 'G') this->_nguards++;
+
+					cout << line[i];
+				}
+				cout << endl;
 			}
 			
-			cout << line << endl;
 			line_offset = file.tellg();
 		}
 
+		// On replace de pointeur sur la première ligne du labyrinthe
 		file.clear();
 		file.seekg(lab_offset);
-		this->_create_conflicts_mat(file);
+
+		// Allocation des tableaux
+		this->_picts = new Wall[this->_npicts];
+		this->_boxes = new Box[this->_nboxes];
+		this->_guards = new Mover*[this->_nguards+1];
+		this->_data = new char*[this->_nlines];
+		for (int i = 0; i < this->_nlines; i++)
+		{
+			this->_data[i] = new char[this->_nrows];
+			for (int j = 0; j < this->_nrows; j++)
+				this->_data[i][j] = 1;
+		}
+
+		this->_fill_data(file);
+
+		file.clear();
+		file.seekg(lab_offset);
+		this->_walls = new Wall[this->_nwall];
+
+		this->_create_walls(file);
 	}
 
 	else
@@ -201,16 +248,177 @@ void Labyrinthe::_check_line_objects(string line)
 	}
 }
 
-void Labyrinthe::_create_conflicts_mat(ifstream &file)
+// 2e tour de boucle
+// Compte le nombre de murs
+// Rempli la matrice _data
+// Créer les images, les caisses, les chasseurs et le trésor
+void Labyrinthe::_fill_data(ifstream &file)
 {
-	// Initialisation de la matrice de positions 
-	this->_conflicts_mat = new char*[this->_nlines];
-	for (int i = 0; i < this->_nlines; i++)
+	int x;
+	int defined_guards;
+	int defined_boxes;
+	int defined_picts;
+	bool line_wall; // Booléen pour compte les murs horizontaux
+	string line;
+
+	// Tableau de booléens pour compter les murs verticaux
+	bool tab_walls[this->_nrows];
+
+	x = defined_picts = defined_boxes = 0;
+	defined_guards = 1; // On réserve le 0 pour le chasseur
+	for (int i = 0; i < this->_nrows; i++) tab_walls[i] = false;
+	
+	while (getline(file, line) && x < this->_nlines /* Evite segfault si lignes vides en fin de fichier */)
 	{
-		this->_conflicts_mat[i] = new char[this->_nrows];
-		for (int j = 0; j < this->_nrows; j++)
+		line_wall = false;
+		for (unsigned int y = 0; y < line.length(); y++)
 		{
-			this->_conflicts_mat[i][j] = 1;
+			// Gestion des murs et des caisses
+			if (line[y] == '+')
+			{
+				if (line_wall) this->_nwall++; // On a un mur horizontal !
+				if (tab_walls[y]) this->_nwall++; // On a un mur vertical
+				line_wall = true;
+				tab_walls[y] = true;
+			}
+
+			else
+			{
+				if (islower(line[y]))
+				{
+					if (line[y] == 'x')
+					{
+						// Placement des caisses
+						this->_boxes[defined_boxes]._x = x;
+						this->_boxes[defined_boxes]._y = y;
+						this->_boxes[defined_boxes]._ntex = 0;
+						defined_boxes++;
+					}
+
+					else
+					{
+						// Créer les affiches ici ou 3e boucle ?
+					}
+				}
+
+				else
+				{
+					if (line[y] != '|') tab_walls[y] = false;
+					if (line[y] != '-') line_wall = false;
+				}
+			}
+
+			// Le reste
+			switch (line[y])
+			{
+				case 'T': // Placement du trésor
+					this->_treasor._x = x;
+					this->_treasor._y = y;
+				break;
+
+				case 'G': // Placement des gardiens
+					this->_guards[defined_guards] = new Gardien (this, "Marvin");
+					this->_guards[defined_guards]->_x = x;
+					this->_guards[defined_guards]->_y = y;
+				break;
+
+				case 'C': // Placement du chasseur
+					this->_guards[0] = new Chasseur (this);
+					this->_guards[0]->_x = 15;
+					this->_guards[0]->_y = 15;
+				break;
+
+				case ' ':
+					this->_data[x][y] = 0;
+				break;
+			}
 		}
+
+		x++;
+	}
+}
+
+void Labyrinthe::_create_walls(ifstream &file)
+{
+	int x;
+	int defined_walls;
+	bool line_wall_b;
+	int line_wall_index[2]; // position of last horizontal +
+	bool tab_walls_b[this->_nrows];
+	int tab_walls_index[this->_nrows][2]; // position of last vertical +
+	string line;
+
+	defined_walls = 0;
+	x = 0;
+	bzero(line_wall_index, 2);
+	for (int i = 0; i < this->_nrows; i++)
+	{
+		tab_walls_b[i] = false;
+		bzero(tab_walls_index[i], 2);
+	}
+
+
+	while (getline(file, line) && x < this->_nlines)
+	{
+		line_wall_b = false;
+
+		for (unsigned int y = 0; y < line.length(); y++)
+		{
+			// Gestion des murs et des caisses
+			if (line[y] == '+')
+			{
+				if (line_wall_b)
+				{
+					cout << "making - wall" << endl;
+					this->_walls[defined_walls]._x1 = line_wall_index[0];
+					this->_walls[defined_walls]._y1 = line_wall_index[1];
+					this->_walls[defined_walls]._x2 = x;
+					this->_walls[defined_walls]._y2 = y;
+					defined_walls++;
+				}
+
+				if (tab_walls_b[y])
+				{
+					cout << "making | wall" << endl;
+					this->_walls[defined_walls]._x1 = tab_walls_index[y][0];
+					this->_walls[defined_walls]._y1 = tab_walls_index[y][1];
+					this->_walls[defined_walls]._x2 = x;
+					this->_walls[defined_walls]._y2 = y;
+					defined_walls++;
+				}
+
+				line_wall_b = true;
+				tab_walls_b[y] = true;
+
+				line_wall_index[0] = x;
+				line_wall_index[1] = y;
+				tab_walls_index[y][0] = x;
+				tab_walls_index[y][1] = y;
+			}
+
+			else
+			{
+				// créer les affiches ici ?
+
+				if (line[y] != '|' && !islower(line[y]))
+				{
+					tab_walls_b[y] = false;
+				}
+
+				if (line[y] != '-' && !islower(line[y]))
+				{
+					line_wall_b = false;
+				}
+			}
+		}
+
+		x++;
+	}
+
+	for (int i = 0; i < this->_nwall; i++)
+	{
+		cout << "WALL " << i + 1 << endl;
+		cout << this->_walls[i]._x1 << ";" << this->_walls[i]._y1 << " " << this->_walls[i]._x2 << ";" << this->_walls[i]._y2 << endl;
+		cout << endl;
 	}
 }

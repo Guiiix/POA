@@ -9,20 +9,21 @@
 
 class Labyrinthe : public Environnement {
 private:
-	char**	_conflicts_mat;
-	char	_data [LAB_WIDTH][LAB_HEIGHT];
+	char**	_data;
 	int		_nlines;
 	int		_nrows;
+
 	bool	_parse_map(char*);
 	bool	_is_empty_line(std::string);
 	char	_get_first_char(std::string);
 	void	_check_line_objects(std::string);
-	void	_create_conflicts_mat(std::ifstream&);
+	void	_fill_data(std::ifstream&);
+	void	_create_walls(std::ifstream&);
 
 public:
 	Labyrinthe (char*);
-	int width () { return LAB_WIDTH;}	// retourne la largeur du labyrinthe.
-	int height () { return LAB_HEIGHT;}	// retourne la longueur du labyrinthe.
+	int width () { return _nlines;}	// retourne la largeur du labyrinthe.
+	int height () { return _nrows;}	// retourne la longueur du labyrinthe.
 	char data (int i, int j)
 	{
 		return _data [i][j];
