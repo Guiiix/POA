@@ -316,12 +316,12 @@ void Labyrinthe::_fill_data(ifstream &file)
 
 				case 'C': // Placement du chasseur
 					this->_guards[0] = new Chasseur (this);
-					this->_guards[0]->_x = 15;
-					this->_guards[0]->_y = 15;
+					this->_guards[0]->_x = x;
+					this->_guards[0]->_y = y;
 				break;
 
 				case ' ':
-					this->_data[x][y] = 0;
+					this->_data[x][y] = EMPTY;
 				break;
 			}
 		}

@@ -23,8 +23,8 @@ private:
 
 public:
 	Labyrinthe (char*);
-	int width () { return _nlines;}	// retourne la largeur du labyrinthe.
-	int height () { return _nrows;}	// retourne la longueur du labyrinthe.
+	int width () { return _nrows;}	// retourne la largeur du labyrinthe.
+	int height () { return _nlines;}	// retourne la longueur du labyrinthe.
 	char data (int i, int j)
 	{
 		return _data [i][j];
