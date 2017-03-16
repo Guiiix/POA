@@ -10,6 +10,7 @@
 class Labyrinthe : public Environnement {
 private:
 	char**	_data;
+	char	_picts_files[26][128]; // 26 affiches différentes max
 	int		_nlines;
 	int		_nrows;
 	int		_nguards_models;

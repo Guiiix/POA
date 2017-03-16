@@ -37,9 +37,15 @@ Labyrinthe::Labyrinthe (char* filename)
 	this->_guards_models[2] = "Potator";
 	this->_guards_models[3] = "garde";
 
+	for (int i = 0; i < 26; i++) sprintf (this->_picts_files[i], "%s/%s", texture_dir, "brickwall.jpg");
+
 	this->_parse_map(filename);
 	this->_debug();
-	
+
+	//char	tmp [128];
+	//sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
+
+	//cout << texture_dir << endl;
 
 	/*return;
 	// les 4 murs.
@@ -141,7 +147,25 @@ bool Labyrinthe::_parse_map(char* filename)
 			{
 				if (islower(first))
 				{
-					// Configuration des images
+					char tmp[128];
+					int j = 0;
+					bool begin_name_declaration = false;
+
+					for (unsigned int i = 1; i < line.length(); i++)
+					{
+						if (line[i] == ' ' || line[i] == '\t')
+						{
+							if (begin_name_declaration) break;
+							else continue;
+						}
+
+						begin_name_declaration = true;
+						tmp[j] = line[i];
+						j++;
+					}
+
+					tmp[j] = '\0';
+					sprintf(this->_picts_files[(int)(first-'a')], "%s/%s", texture_dir, tmp);
 				}
 
 				// La définition du labyrinthe commence forcément par un angle
@@ -294,6 +318,7 @@ void Labyrinthe::_fill_data(ifstream &file)
 						// Sinon c'est donc une image verticale
 						else this->_stick_v_pict(defined_picts, nrow, nline);
 
+						this->_picts[defined_picts]._ntex = wall_texture(this->_picts_files[(int)(line[nrow] - 'a')]);
 						defined_picts++;
 					}
 				}
@@ -449,6 +474,11 @@ void Labyrinthe::_debug()
 		}
 
 		cout << endl;
+	}
+
+	for (int i = 0; i < 26; i++)
+	{
+		cout << (char)('a' + i) << " : " << this->_picts_files[i] << endl;
 	}
 
 	cout << "TREASOR: " << this->_treasor._x << ";" << this->_treasor._y << endl;
