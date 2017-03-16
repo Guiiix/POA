@@ -16,7 +16,6 @@ private:
 	bool	_parse_map(char*);
 	bool	_is_empty_line(std::string);
 	char	_get_first_char(std::string);
-	void	_check_line_objects(std::string);
 	void	_fill_data(std::ifstream&);
 	void	_create_walls(std::ifstream&);
 	void	_debug(void);

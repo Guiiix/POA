@@ -179,14 +179,13 @@ bool Labyrinthe::_parse_map(char* filename)
 		this->_picts = new Wall[this->_npicts];
 		this->_boxes = new Box[this->_nboxes];
 		this->_guards = new Mover*[this->_nguards];
-		this->_data = new char*[this->_nlines];
-		for (int i = 0; i < this->_nlines; i++)
+		this->_data = new char*[this->width()];
+		for (int i = 0; i < this->width(); i++)
 		{
-			this->_data[i] = new char[this->_nrows];
-			for (int j = 0; j < this->_nrows; j++)
+			this->_data[i] = new char[this->height()];
+			for (int j = 0; j < this->height(); j++)
 				this->_data[i][j] = 1;
 		}
-
 		this->_fill_data(file);
 
 		file.clear();
@@ -220,24 +219,6 @@ char Labyrinthe::_get_first_char(string str)
 	int i = -1;
 	while (++i < (int)str.length() && str[i] == ' ');
 	return str[i];
-}
-
-void Labyrinthe::_check_line_objects(string line)
-{
-	for (int i = 0; i < (int)line.length(); i++)
-	{
-		switch(line[i])
-		{
-			case 'x':
-				this->_nboxes++;
-				break;
-			case 'G':
-				this->_nguards++;
-				break;
-			default:
-				break;
-		}
-	}
 }
 
 // 2e tour de boucle
