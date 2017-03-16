@@ -312,7 +312,7 @@ void Labyrinthe::_fill_data(ifstream &file)
 					this->_guards[defined_guards] = new Gardien (this, "garde");
 					this->_guards[defined_guards]->_x = x * this->scale;
 					this->_guards[defined_guards]->_y = y * this->scale;
-					//defined_guards++;
+					defined_guards++;
 				break;
 
 				case 'C': // Placement du chasseur
