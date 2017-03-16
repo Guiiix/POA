@@ -419,9 +419,9 @@ void Labyrinthe::_debug()
 	cout << "N rows : " << this->_nrows << endl;
 	cout << "ENV scale : " << this->scale << endl;
 
-	for (int i = 0; i < this->width(); i++)
+	for (int i = 0; i < this->height(); i++)
 	{
-		for (int j = 0; j < this->height(); j++)
+		for (int j = 0; j < this->width(); j++)
 		{
 			cout << (int) this->_data[j][i];
 		}
@@ -432,8 +432,7 @@ void Labyrinthe::_debug()
 	cout << "TREASOR: " << this->_treasor._x << ";" << this->_treasor._y << endl;
 	for (int i = 0; i < this->_nwall; i++) cout << "WALL " << i + 1 << ": " << this->_walls[i]._x1 << ";" << this->_walls[i]._y1 << " " << this->_walls[i]._x2 << ";" << this->_walls[i]._y2 << endl;
 	for (int i = 0; i < this->_nboxes; i++) cout << "BOXE " << i + 1 << ": " << this->_boxes[i]._x << ";" << this->_boxes[i]._y << endl;
-	for (int i = 0; i < this->_nguards+1; i++) cout << "GUARD " << i + 1 << ": " << this->_guards[i]->_x << ";" << this->_guards[i]->_y << endl;
-
+	for (int i = 0; i < this->_nguards; i++) cout << "GUARD " << i + 1 << ": " << this->_guards[i]->_x << ";" << this->_guards[i]->_y << endl;
 	cout << "END OF DEBUG" << endl;
 	
 }
