@@ -16,7 +16,7 @@ private:
 	int		_nguards_models;
 	std::string* _guards_models;
 
-	bool	_parse_map(char*);
+	void	_parse_map(char*);
 	bool	_is_empty_line(std::string);
 	char	_get_first_char(std::string);
 	void	_fill_data(std::ifstream&);
@@ -24,6 +24,7 @@ private:
 	void	_debug(void);
 	void	_stick_v_pict(int, unsigned int,int);
 	void	_stick_h_pict(int, unsigned int,int);
+	std::streampos _explore_and_configure(std::ifstream &file);
 
 public:
 	Labyrinthe (char*);
