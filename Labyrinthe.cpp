@@ -310,15 +310,15 @@ void Labyrinthe::_fill_data(ifstream &file)
 
 				case 'G': // Placement des gardiens
 					this->_guards[defined_guards] = new Gardien (this, "garde");
-					this->_guards[defined_guards]->_x = x;
-					this->_guards[defined_guards]->_y = y;
+					this->_guards[defined_guards]->_x = x * this->scale;
+					this->_guards[defined_guards]->_y = y * this->scale;
 					//defined_guards++;
 				break;
 
 				case 'C': // Placement du chasseur
 					this->_guards[0] = new Chasseur (this);
-					this->_guards[0]->_x = 15;
-					this->_guards[0]->_y = 15;
+					this->_guards[0]->_x = x * this->scale;
+					this->_guards[0]->_y = x * this->scale;
 				break;
 
 				case ' ':
@@ -417,9 +417,23 @@ void Labyrinthe::_debug()
 	cout << "N guards : " << this->_nguards << endl;
 	cout << "N lines : " << this->_nlines << endl;
 	cout << "N rows : " << this->_nrows << endl;
+	cout << "ENV scale : " << this->scale << endl;
 
-	for (int i = 0; i < this->_nwall; i++) cout << "WALL " << i + 1 << ": " << this->_walls[i]._x1 << ";" << this->_walls[i]._y1 << " " << this->_walls[i]._x2 << ";" << this->_walls[i]._y2 << endl;
-	//for (int i = 0; i < this->_nguards+1; i++) cout << "GUARD " << i + 1 << ": " << this->_guards[i]->_x << ";" << this->_guards[i]->_y << endl;
-	for (int i = 0; i < this->_nboxes; i++) cout << "BOXE " << i + 1 << ": " << this->_boxes[i]._x << ";" << this->_boxes[i]._y << endl;
+	for (int i = 0; i < this->width(); i++)
+	{
+		for (int j = 0; j < this->height(); j++)
+		{
+			cout << (int) this->_data[j][i];
+		}
+
+		cout << endl;
+	}
+
 	cout << "TREASOR: " << this->_treasor._x << ";" << this->_treasor._y << endl;
+	for (int i = 0; i < this->_nwall; i++) cout << "WALL " << i + 1 << ": " << this->_walls[i]._x1 << ";" << this->_walls[i]._y1 << " " << this->_walls[i]._x2 << ";" << this->_walls[i]._y2 << endl;
+	for (int i = 0; i < this->_nboxes; i++) cout << "BOXE " << i + 1 << ": " << this->_boxes[i]._x << ";" << this->_boxes[i]._y << endl;
+	for (int i = 0; i < this->_nguards+1; i++) cout << "GUARD " << i + 1 << ": " << this->_guards[i]->_x << ";" << this->_guards[i]->_y << endl;
+
+	cout << "END OF DEBUG" << endl;
+	
 }
