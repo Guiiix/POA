@@ -262,8 +262,8 @@ void Labyrinthe::_fill_data(ifstream &file)
 					if (line[nrow] == 'x')
 					{
 						// Placement des caisses
-						this->_boxes[defined_boxes]._x = nline;
-						this->_boxes[defined_boxes]._y = nrow;
+						this->_boxes[defined_boxes]._x = nrow;
+						this->_boxes[defined_boxes]._y = nline;
 						this->_boxes[defined_boxes]._ntex = 0;
 						defined_boxes++;
 					}
@@ -276,7 +276,9 @@ void Labyrinthe::_fill_data(ifstream &file)
 
 				else
 				{
+					// Si on a pas de |, c'est qu'il n'y a pas de mur vertical
 					if (line[nrow] != '|') tab_walls[nrow] = false;
+					// Si on a pas de -, c'est qu'il n'y a pas de mur horizontal
 					if (line[nrow] != '-') line_wall = false;
 				}
 			}
@@ -285,25 +287,25 @@ void Labyrinthe::_fill_data(ifstream &file)
 			switch (line[nrow])
 			{
 				case 'T': // Placement du trésor
-					this->_treasor._x = nline;
-					this->_treasor._y = nrow;
+					this->_treasor._x = nrow;
+					this->_treasor._y = nline;
 				break;
 
 				case 'G': // Placement des gardiens
 					this->_guards[defined_guards] = new Gardien (this, "garde");
-					this->_guards[defined_guards]->_x = nline * this->scale;
-					this->_guards[defined_guards]->_y = nrow * this->scale;
+					this->_guards[defined_guards]->_x = nrow * this->scale;
+					this->_guards[defined_guards]->_y = nline * this->scale;
 					defined_guards++;
 				break;
 
 				case 'C': // Placement du chasseur
 					this->_guards[0] = new Chasseur (this);
-					this->_guards[0]->_x = nline * this->scale;
-					this->_guards[0]->_y = nrow * this->scale;
+					this->_guards[0]->_x = nrow * this->scale;
+					this->_guards[0]->_y = nline * this->scale;
 				break;
 
 				case ' ':
-					this->_data[nline][nrow] = EMPTY;
+					this->_data[nrow][nline] = EMPTY;
 				break;
 			}
 		}
@@ -314,7 +316,7 @@ void Labyrinthe::_fill_data(ifstream &file)
 
 void Labyrinthe::_create_walls(ifstream &file)
 {
-	int x;
+	int nline;
 	int defined_walls;
 	bool line_wall_b;
 	int line_wall_index[2]; // position of last horizontal +
@@ -323,7 +325,7 @@ void Labyrinthe::_create_walls(ifstream &file)
 	string line;
 
 	defined_walls = 0;
-	x = 0;
+	nline = 0;
 	bzero(line_wall_index, 2);
 	for (int i = 0; i < this->_nrows; i++)
 	{
@@ -332,61 +334,61 @@ void Labyrinthe::_create_walls(ifstream &file)
 	}
 
 
-	while (getline(file, line) && x < this->_nlines)
+	while (getline(file, line) && nline < this->height())
 	{
 		line_wall_b = false;
 
-		for (unsigned int y = 0; y < line.length(); y++)
+		for (unsigned int nrow = 0; nrow < line.length(); nrow++)
 		{
 			// Gestion des murs et des caisses
-			if (line[y] == '+')
+			if (line[nrow] == '+')
 			{
 				if (line_wall_b)
 				{
 					this->_walls[defined_walls]._x1 = line_wall_index[0];
 					this->_walls[defined_walls]._y1 = line_wall_index[1];
-					this->_walls[defined_walls]._x2 = x;
-					this->_walls[defined_walls]._y2 = y;
+					this->_walls[defined_walls]._x2 = nrow;
+					this->_walls[defined_walls]._y2 = nline;
 					this->_walls[defined_walls]._ntex = 0;
 					defined_walls++;
 				}
 
-				if (tab_walls_b[y])
+				if (tab_walls_b[nrow])
 				{
-					this->_walls[defined_walls]._x1 = tab_walls_index[y][0];
-					this->_walls[defined_walls]._y1 = tab_walls_index[y][1];
-					this->_walls[defined_walls]._x2 = x;
-					this->_walls[defined_walls]._y2 = y;
+					this->_walls[defined_walls]._x1 = tab_walls_index[nrow][0];
+					this->_walls[defined_walls]._y1 = tab_walls_index[nrow][1];
+					this->_walls[defined_walls]._x2 = nrow;
+					this->_walls[defined_walls]._y2 = nline;
 					this->_walls[defined_walls]._ntex = 0;
 					defined_walls++;
 				}
 
 				line_wall_b = true;
-				tab_walls_b[y] = true;
+				tab_walls_b[nrow] = true;
 
-				line_wall_index[0] = x;
-				line_wall_index[1] = y;
-				tab_walls_index[y][0] = x;
-				tab_walls_index[y][1] = y;
+				line_wall_index[0] = nrow;
+				line_wall_index[1] = nline;
+				tab_walls_index[nrow][0] = nrow;
+				tab_walls_index[nrow][1] = nline;
 			}
 
 			else
 			{
 				// créer les affiches ici ?
 
-				if (line[y] != '|' && !islower(line[y]))
+				if (line[nrow] != '|' && !islower(line[nrow]))
 				{
-					tab_walls_b[y] = false;
+					tab_walls_b[nrow] = false;
 				}
 
-				if (line[y] != '-' && !islower(line[y]))
+				if (line[nrow] != '-' && !islower(line[nrow]))
 				{
 					line_wall_b = false;
 				}
 			}
 		}
 
-		x++;
+		nline++;
 	}
 }
 
@@ -411,7 +413,8 @@ void Labyrinthe::_debug()
 	}
 
 	cout << "TREASOR: " << this->_treasor._x << ";" << this->_treasor._y << endl;
-	for (int i = 0; i < this->_nwall; i++) cout << "WALL " << i + 1 << ": " << this->_walls[i]._x1 << ";" << this->_walls[i]._y1 << " " << this->_walls[i]._x2 << ";" << this->_walls[i]._y2 << endl;
+	for (int i = 0; i < this->_nwall; i++) cout << "WALL " << i + 1 << ": " 
+		<< this->_walls[i]._x1 << ";" << this->_walls[i]._y1 << " " << this->_walls[i]._x2 << ";" << this->_walls[i]._y2 << endl;
 	for (int i = 0; i < this->_nboxes; i++) cout << "BOXE " << i + 1 << ": " << this->_boxes[i]._x << ";" << this->_boxes[i]._y << endl;
 	for (int i = 0; i < this->_nguards; i++) cout << "GUARD " << i + 1 << ": " << this->_guards[i]->_x << ";" << this->_guards[i]->_y << endl;
 	cout << "END OF DEBUG" << endl;
