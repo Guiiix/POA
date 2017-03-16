@@ -21,6 +21,8 @@ private:
 	void	_fill_data(std::ifstream&);
 	void	_create_walls(std::ifstream&);
 	void	_debug(void);
+	void	_stick_v_pict(int, unsigned int,int);
+	void	_stick_h_pict(int, unsigned int,int);
 
 public:
 	Labyrinthe (char*);

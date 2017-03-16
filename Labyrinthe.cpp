@@ -245,11 +245,11 @@ void Labyrinthe::_fill_data(ifstream &file)
 	string line;
 
 	// Tableau de booléens pour compter les murs verticaux
-	bool tab_walls[this->_nrows];
+	bool tab_walls[this->width()];
 
 	nline = defined_picts = defined_boxes = 0;
 	defined_guards = 1; // On réserve le 0 pour le chasseur
-	for (int i = 0; i < this->_nrows; i++) tab_walls[i] = false;
+	for (int i = 0; i < this->width(); i++) tab_walls[i] = false;
 	
 	while (getline(file, line) && nline < this->height() /* Evite segfault si lignes vides en fin de fichier */)
 	{
@@ -280,7 +280,21 @@ void Labyrinthe::_fill_data(ifstream &file)
 
 					else
 					{
-						// Créer les affiches ici ou 3e boucle ?
+						// Il faut chercher à savoir si l'affiche est sur un mur
+						// horizontal ou vertical
+						// On suppose qu'il n'est pas possible d'avoir une affiche
+						// dans un angle
+
+						// Si l'affiche est à une des extrémités horizontale,
+						// c'est qu'elle est forcément sur un mur vertical
+						if (nrow == 0 || (int) nrow == this->width()-1) this->_stick_v_pict(defined_picts, nrow, nline);
+						// Si l'image n'est pas sur une extrémité horizontale,
+						// on peut tester si le mur est un mur horizontal
+						else if (line[nrow-1] == '-' || line[nrow+1] == '-') this->_stick_h_pict(defined_picts, nrow, nline);
+						// Sinon c'est donc une image verticale
+						else this->_stick_v_pict(defined_picts, nrow, nline);
+
+						defined_picts++;
 					}
 				}
 
@@ -324,20 +338,37 @@ void Labyrinthe::_fill_data(ifstream &file)
 	}
 }
 
+void Labyrinthe::_stick_h_pict(int defined_picts, unsigned int nrow, int nline)
+{
+	this->_picts[defined_picts]._x1 = nrow-1;
+	this->_picts[defined_picts]._x2 = nrow+1;
+	this->_picts[defined_picts]._y1 = nline;
+	this->_picts[defined_picts]._y2 = nline;
+}
+
+void Labyrinthe::_stick_v_pict(int defined_picts, unsigned int nrow, int nline)
+{
+	this->_picts[defined_picts]._x1 = nrow;
+	this->_picts[defined_picts]._x2 = nrow;
+	this->_picts[defined_picts]._y1 = nline-1;
+	this->_picts[defined_picts]._y2 = nline+1;
+}
+
+
 void Labyrinthe::_create_walls(ifstream &file)
 {
 	int nline;
 	int defined_walls;
 	bool line_wall_b;
 	int line_wall_index[2]; // position of last horizontal +
-	bool tab_walls_b[this->_nrows];
-	int tab_walls_index[this->_nrows][2]; // position of last vertical +
+	bool tab_walls_b[this->width()];
+	int tab_walls_index[this->width()][2]; // position of last vertical +
 	string line;
 
 	defined_walls = 0;
 	nline = 0;
 	bzero(line_wall_index, 2);
-	for (int i = 0; i < this->_nrows; i++)
+	for (int i = 0; i < this->width(); i++)
 	{
 		tab_walls_b[i] = false;
 		bzero(tab_walls_index[i], 2);
@@ -384,8 +415,6 @@ void Labyrinthe::_create_walls(ifstream &file)
 
 			else
 			{
-				// créer les affiches ici ?
-
 				if (line[nrow] != '|' && !islower(line[nrow]))
 				{
 					tab_walls_b[nrow] = false;
