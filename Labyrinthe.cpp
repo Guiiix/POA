@@ -244,26 +244,26 @@ void Labyrinthe::_fill_data(ifstream &file)
 	while (getline(file, line) && nline < this->height() /* Evite segfault si lignes vides en fin de fichier */)
 	{
 		line_wall = false;
-		for (unsigned int y = 0; y < line.length(); y++)
+		for (unsigned int nrow = 0; nrow < line.length(); nrow++)
 		{
 			// Gestion des murs et des caisses
-			if (line[y] == '+')
+			if (line[nrow] == '+')
 			{
 				if (line_wall) this->_nwall++; // On a un mur horizontal !
-				if (tab_walls[y]) this->_nwall++; // On a un mur vertical
+				if (tab_walls[nrow]) this->_nwall++; // On a un mur vertical
 				line_wall = true;
-				tab_walls[y] = true;
+				tab_walls[nrow] = true;
 			}
 
 			else
 			{
-				if (islower(line[y]))
+				if (islower(line[nrow]))
 				{
-					if (line[y] == 'x')
+					if (line[nrow] == 'x')
 					{
 						// Placement des caisses
 						this->_boxes[defined_boxes]._x = nline;
-						this->_boxes[defined_boxes]._y = y;
+						this->_boxes[defined_boxes]._y = nrow;
 						this->_boxes[defined_boxes]._ntex = 0;
 						defined_boxes++;
 					}
@@ -276,34 +276,34 @@ void Labyrinthe::_fill_data(ifstream &file)
 
 				else
 				{
-					if (line[y] != '|') tab_walls[y] = false;
-					if (line[y] != '-') line_wall = false;
+					if (line[nrow] != '|') tab_walls[nrow] = false;
+					if (line[nrow] != '-') line_wall = false;
 				}
 			}
 
 			// Le reste
-			switch (line[y])
+			switch (line[nrow])
 			{
 				case 'T': // Placement du trésor
 					this->_treasor._x = nline;
-					this->_treasor._y = y;
+					this->_treasor._y = nrow;
 				break;
 
 				case 'G': // Placement des gardiens
 					this->_guards[defined_guards] = new Gardien (this, "garde");
 					this->_guards[defined_guards]->_x = nline * this->scale;
-					this->_guards[defined_guards]->_y = y * this->scale;
+					this->_guards[defined_guards]->_y = nrow * this->scale;
 					defined_guards++;
 				break;
 
 				case 'C': // Placement du chasseur
 					this->_guards[0] = new Chasseur (this);
 					this->_guards[0]->_x = nline * this->scale;
-					this->_guards[0]->_y = nline * this->scale;
+					this->_guards[0]->_y = nrow * this->scale;
 				break;
 
 				case ' ':
-					this->_data[nline][y] = EMPTY;
+					this->_data[nline][nrow] = EMPTY;
 				break;
 			}
 		}
