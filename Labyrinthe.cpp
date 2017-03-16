@@ -164,7 +164,7 @@ bool Labyrinthe::_parse_map(char* filename)
 						else this->_npicts++;
 					}
 
-					if (line[i] == 'G') this->_nguards++;
+					if (line[i] == 'G' || line[i] == 'C') this->_nguards++;
 				}
 			}
 			
@@ -178,7 +178,7 @@ bool Labyrinthe::_parse_map(char* filename)
 		// Allocation des tableaux
 		this->_picts = new Wall[this->_npicts];
 		this->_boxes = new Box[this->_nboxes];
-		this->_guards = new Mover*[this->_nguards+1];
+		this->_guards = new Mover*[this->_nguards];
 		this->_data = new char*[this->_nlines];
 		for (int i = 0; i < this->_nlines; i++)
 		{
