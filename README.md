@@ -67,9 +67,9 @@ Cette archive contient aussi toutes les textures (fichiers .jpg) et le modèle d
 
 Bien entendu, il ne faut **pas modifier** ne serait-ce que d'un caractère le contenu de ces fichiers (sauf les programmes de test!).
 
-Pour le labyrinthe, votre classe (dérivée de Environnement) **doit** s'appeller Labyrinthe et posseder un constructeur qui prend un argument de type char* qui est le nom du fichier definissant le labyrinthe.
+Pour le labyrinthe, votre classe (dérivée de `Environnement`) **doit** s'appeller Labyrinthe et posseder un constructeur qui prend un argument de type char\* qui est le nom du fichier definissant le labyrinthe.
 
-La constante Environnement::scale est un facteur d'echelle permettant de convertir des coordonnées flottantes de personnages en coordonnées entières dans la carte. Cette conversion se passe de la façon suivante: (par exemple)
+La constante `Environnement::scale` est un facteur d'echelle permettant de convertir des coordonnées flottantes de personnages en coordonnées entières dans la carte. Cette conversion se passe de la façon suivante: (par exemple)
 
     Mover*	m;
 
@@ -82,10 +82,10 @@ Rien de tel qu'un exemple pour comprendre comment utiliser du code que vous n'av
 - Chasseur et Gardien qui sont deux exemples quasi vides de dérivés de la classe Mover
 - Makefile qui vous montre les bibliothèques à utiliser pour linker votre application.
 
-La classe Mover (et donc par ricochet ses dérivées Gardien et Chasseur) a été augmentée de l'affichage d'un projectile (boule de feu) qui nécessite l'inclusion du fichier FireBall.h et une méthode virtuelle :
+La classe `Mover` (et donc par ricochet ses dérivées `Gardien` et `Chasseur`) a été augmentée de l'affichage d'un projectile (boule de feu) qui nécessite l'inclusion du fichier `FireBall.h` et une méthode virtuelle :
 
 ```
 bool process_fireball (float dx, float dy)
 ```
 
-dont un exemple est donné dans Chasseur.h. Cette fonction est appelée automatiquement quand on a initialisé un tir (voir la méthode fire du chasseur). Elle retourne vrai si le déplacement est accepté et faux s'il y a une collision. En cas de collision, la boule explosera automatiquement.
+dont un exemple est donné dans `Chasseur.h`. Cette fonction est appelée automatiquement quand on a initialisé un tir (voir la méthode fire du chasseur). Elle retourne vrai si le déplacement est accepté et faux s'il y a une collision. En cas de collision, la boule explosera automatiquement.
