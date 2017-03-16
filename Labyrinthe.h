@@ -12,6 +12,8 @@ private:
 	char**	_data;
 	int		_nlines;
 	int		_nrows;
+	int		_nguards_models;
+	std::string* _guards_models;
 
 	bool	_parse_map(char*);
 	bool	_is_empty_line(std::string);

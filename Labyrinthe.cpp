@@ -4,7 +4,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 #include <strings.h>
+#include <time.h>
 
 Sound*	Chasseur::_hunter_fire;	// bruit de l'arme du chasseur.
 Sound*	Chasseur::_hunter_hit;	// cri du chasseur touché.
@@ -20,12 +22,20 @@ Environnement* Environnement::init (char* filename)
 
 Labyrinthe::Labyrinthe (char* filename)
 {
+	srand(time(NULL));
 	this->_nwall = 0;
 	this->_npicts = 0;
 	this->_nboxes = 0;
 	this->_nguards = 0;
 	this->_nlines =  0;
 	this->_nrows = 0;
+
+	this->_nguards_models = 4;
+	this->_guards_models = new string[this->_nguards_models];
+	this->_guards_models[0] = "drfreak";
+	this->_guards_models[1] = "Marvin";
+	this->_guards_models[2] = "Potator";
+	this->_guards_models[3] = "garde";
 
 	this->_parse_map(filename);
 	this->_debug();
@@ -292,7 +302,7 @@ void Labyrinthe::_fill_data(ifstream &file)
 				break;
 
 				case 'G': // Placement des gardiens
-					this->_guards[defined_guards] = new Gardien (this, "garde");
+					this->_guards[defined_guards] = new Gardien (this, this->_guards_models[rand()%this->_nguards_models].c_str());
 					this->_guards[defined_guards]->_x = nrow * this->scale;
 					this->_guards[defined_guards]->_y = nline * this->scale;
 					defined_guards++;
