@@ -415,8 +415,8 @@ void Labyrinthe::_debug()
 	cout << "N picts : " << this->_npicts << endl;
 	cout << "N boxes : " << this->_nboxes << endl;
 	cout << "N guards : " << this->_nguards << endl;
-	cout << "N lines : " << this->_nlines << endl;
-	cout << "N rows : " << this->_nrows << endl;
+	cout << "Width : " << this->width() << endl;
+	cout << "Height : " << this->height() << endl;
 	cout << "ENV scale : " << this->scale << endl;
 
 	for (int i = 0; i < this->height(); i++)
