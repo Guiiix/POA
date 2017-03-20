@@ -4,12 +4,10 @@
 #include "Environnement.h"
 #include <string>
 
-#define	LAB_WIDTH	80
-#define	LAB_HEIGHT	25
-
 class Labyrinthe : public Environnement {
 private:
 	char**	_data;
+	char**	_dist_mat;
 	char	_picts_files[26][128]; // 26 affiches différentes max
 	int		_nlines;
 	int		_nrows;
