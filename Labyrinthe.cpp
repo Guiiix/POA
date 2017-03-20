@@ -3,11 +3,11 @@
 // Labyrinthe.cpp
 // ===============================
 //
-// Contient l'ensemble des méthodes gérant le labyrinthe, à savoir :
+// Contient l'ensemble des mÃ©thodes gÃ©rant le labyrinthe, Ã  savoir :
 // - Gestion des images (fichiers et emplacements)
-// - Création des gardiens, caisses
-// - Placement du trésor
-// - Création des murs du labyrinthe
+// - CrÃ©ation des gardiens, caisses
+// - Placement du trÃ©sor
+// - CrÃ©ation des murs du labyrinthe
 //
 
 #include "Labyrinthe.h"
@@ -19,10 +19,13 @@
 #include <cstdlib>
 #include <strings.h>
 #include <time.h>
+#include <climits>
+#include <list>
+#include <queue>
 
 Sound*	Chasseur::_hunter_fire;	// bruit de l'arme du chasseur.
-Sound*	Chasseur::_hunter_hit;	// cri du chasseur touché.
-Sound*	Chasseur::_wall_hit;	// on a tapé un mur.
+Sound*	Chasseur::_hunter_hit;	// cri du chasseur touchÃ©.
+Sound*	Chasseur::_wall_hit;	// on a tapÃ© un mur.
 
 using namespace std;
 
@@ -36,9 +39,9 @@ Environnement* Environnement::init (char* filename)
 //
 // @filename : nom du fichier contenant la carte du labyrinthe
 //
-// Initialise les différents membres de classe
-// Créer les modèles pour les gardiens
-// Initialise par défaut les fichiers images à la texture d'un mur classique
+// Initialise les diffÃ©rents membres de classe
+// CrÃ©er les modÃ¨les pour les gardiens
+// Initialise par dÃ©faut les fichiers images Ã  la texture d'un mur classique
 // Lance l'initialisation du labyrinthe
 
 Labyrinthe::Labyrinthe (char* filename)
@@ -61,14 +64,15 @@ Labyrinthe::Labyrinthe (char* filename)
 	for (int i = 0; i < 26; i++) sprintf (this->_picts_files[i], "%s/%s", texture_dir, "brickwall.jpg");
 
 	this->_parse_map(filename);
+	this->_init_dist_mat();
 }
 
 // Lancement du parsing
 // =========================================================================
-// @filename : chaine de caractères représentant le nom du fichier à parser
+// @filename : chaine de caractÃ¨res reprÃ©sentant le nom du fichier Ã  parser
 //
-// Lance les 3 tours de boucle pour la génération du labyrinthe
-// Alloue l'espace mémoire nécessaire aux différentes structures de données
+// Lance les 3 tours de boucle pour la gÃ©nÃ©ration du labyrinthe
+// Alloue l'espace mÃ©moire nÃ©cessaire aux diffÃ©rentes structures de donnÃ©es
 
 void Labyrinthe::_parse_map(char* filename)
 {
@@ -107,16 +111,16 @@ void Labyrinthe::_parse_map(char* filename)
 }
 
 
-// Définition des fichiers images et taille du labyrinthe
+// DÃ©finition des fichiers images et taille du labyrinthe
 // ====================================================================
-// @file : fichier labyrinthe, pointeur placé au début du fichier
-// @return : retourne la position du début de déclération du labyrinthe
+// @file : fichier labyrinthe, pointeur placÃ© au dÃ©but du fichier
+// @return : retourne la position du dÃ©but de dÃ©clÃ©ration du labyrinthe
 //           dans le fichier
 //
 // Fait une premiere exploration du fichier labyrinthe.
 // Commence par configurer les fichiers images dans le tableau
 // _n_picts_files
-// Compte ensuite le nombre d'élements du labyrinthe (caisses, gardiens,
+// Compte ensuite le nombre d'Ã©lements du labyrinthe (caisses, gardiens,
 // largeur, longueur)
 
 streampos Labyrinthe::_explore_and_configure(ifstream &file)
@@ -135,17 +139,17 @@ streampos Labyrinthe::_explore_and_configure(ifstream &file)
 		// On ne se soucie pas des lignes vides
 		if (_is_empty_line(line))
 		{
-			// Récupération de la position de la ligne courant dans le fichier
+			// RÃ©cupÃ©ration de la position de la ligne courant dans le fichier
 			line_offset = file.tellg();
 			continue;
 		}
 
 		first = this->_get_first_char(line);
 
-		// On passe les lignes commentées
+		// On passe les lignes commentÃ©es
 		if (first == '#') continue;
 
-		// Partie supérieure du fichier, configuration des images
+		// Partie supÃ©rieure du fichier, configuration des images
 		if (!beign_lab)
 		{
 			if (islower(first))
@@ -171,17 +175,17 @@ streampos Labyrinthe::_explore_and_configure(ifstream &file)
 				sprintf(this->_picts_files[(int)(first-'a')], "%s/%s", texture_dir, tmp);
 			}
 
-			// La définition du labyrinthe commence forcément par un angle
+			// La dÃ©finition du labyrinthe commence forcÃ©ment par un angle
 			else if (first == '+') 
 			{
 				beign_lab = true;
 
-				// Récupération de la position à laquelle la déclaration du labyrinthe commence
+				// RÃ©cupÃ©ration de la position Ã  laquelle la dÃ©claration du labyrinthe commence
 				lab_offset = line_offset;
 			}
 		}
 
-		// Partie inférieure du fichier, déclaration du labyrinthe
+		// Partie infÃ©rieure du fichier, dÃ©claration du labyrinthe
 		if (beign_lab)
 		{
 			this->_nlines++;
@@ -202,16 +206,16 @@ streampos Labyrinthe::_explore_and_configure(ifstream &file)
 		line_offset = file.tellg();
 	}
 
-	// On replace de pointeur sur la première ligne du labyrinthe
+	// On replace de pointeur sur la premiÃ¨re ligne du labyrinthe
 	file.clear();
 	file.seekg(lab_offset);
 	return lab_offset;
 }
 
 
-// Détermine si une ligne est vide ou non
+// DÃ©termine si une ligne est vide ou non
 // ================================================================
-// @str : chaine de caractères à tester
+// @str : chaine de caractÃ¨res Ã  tester
 //
 // Renvoi vrai si la ligne est vide ou ne contient que des espaces.
 // Dans le cas contraire, renvoi faux.
@@ -222,8 +226,8 @@ bool Labyrinthe::_is_empty_line(string str)
 }
 
 
-// Récupère le premier caractère d'une chaine de caractères autre qu'un espace.
-// Suppose que la chaine de passée en paramètre contient au moins un caractère
+// RÃ©cupÃ¨re le premier caractÃ¨re d'une chaine de caractÃ¨res autre qu'un espace.
+// Suppose que la chaine de passÃ©e en paramÃ¨tre contient au moins un caractÃ¨re
 // autre qu'un espace
 
 char Labyrinthe::_get_first_char(string str)
@@ -234,15 +238,15 @@ char Labyrinthe::_get_first_char(string str)
 }
 
 
-// Définition des divers éléments de la carte et _data
+// DÃ©finition des divers Ã©lÃ©ments de la carte et _data
 // ================================================================================
-// @file : fichier labyrinthe, pointeur placé après la déclaration des images
+// @file : fichier labyrinthe, pointeur placÃ© aprÃ¨s la dÃ©claration des images
 //
 // 2e tour de boucle...
-// Compte le nombre de murs par le système décrit dans la fonction _create_walls
-// Permet de créer les affiches à leur emplacement indiqué ainsi qu'avec la texture
-// précédemmenbt définie
-// Créer les caisses, leschasseur, les gardiens et le trésor
+// Compte le nombre de murs par le systÃ¨me dÃ©crit dans la fonction _create_walls
+// Permet de crÃ©er les affiches Ã  leur emplacement indiquÃ© ainsi qu'avec la texture
+// prÃ©cÃ©demmenbt dÃ©finie
+// CrÃ©er les caisses, leschasseur, les gardiens et le trÃ©sor
 
 void Labyrinthe::_fill_data(ifstream &file)
 {
@@ -250,14 +254,14 @@ void Labyrinthe::_fill_data(ifstream &file)
 	int defined_guards;
 	int defined_boxes;
 	int defined_picts;
-	bool line_wall; // Booléen pour compte les murs horizontaux
+	bool line_wall; // BoolÃ©en pour compte les murs horizontaux
 	string line;
 
-	// Tableau de booléens pour compter les murs verticaux
+	// Tableau de boolÃ©ens pour compter les murs verticaux
 	bool tab_walls[this->width()];
 
 	nline = defined_picts = defined_boxes = 0;
-	defined_guards = 1; // On réserve le 0 pour le chasseur
+	defined_guards = 1; // On rÃ©serve le 0 pour le chasseur
 	for (int i = 0; i < this->width(); i++) tab_walls[i] = false;
 	
 	while (getline(file, line) && nline < this->height() /* Evite segfault si lignes vides en fin de fichier */)
@@ -289,15 +293,15 @@ void Labyrinthe::_fill_data(ifstream &file)
 
 					else
 					{
-						// Il faut chercher à savoir si l'affiche est sur un mur
+						// Il faut chercher Ã  savoir si l'affiche est sur un mur
 						// horizontal ou vertical
 						// On suppose qu'il n'est pas possible d'avoir une affiche
 						// dans un angle
 
-						// Si l'affiche est à une des extrémités horizontale,
-						// c'est qu'elle est forcément sur un mur vertical
+						// Si l'affiche est Ã  une des extrÃ©mitÃ©s horizontale,
+						// c'est qu'elle est forcÃ©ment sur un mur vertical
 						if (nrow == 0 || (int) nrow == this->width()-1) this->_stick_v_pict(defined_picts, nrow, nline);
-						// Si l'image n'est pas sur une extrémité horizontale,
+						// Si l'image n'est pas sur une extrÃ©mitÃ© horizontale,
 						// on peut tester si le mur est un mur horizontal
 						else if (line[nrow-1] == '-' || line[nrow+1] == '-') this->_stick_h_pict(defined_picts, nrow, nline);
 						// Sinon c'est donc une image verticale
@@ -320,7 +324,7 @@ void Labyrinthe::_fill_data(ifstream &file)
 			// Le reste
 			switch (line[nrow])
 			{
-				case 'T': // Placement du trésor
+				case 'T': // Placement du trÃ©sor
 					this->_treasor._x = nrow;
 					this->_treasor._y = nline;
 				break;
@@ -330,12 +334,14 @@ void Labyrinthe::_fill_data(ifstream &file)
 					this->_guards[defined_guards]->_x = nrow * this->scale;
 					this->_guards[defined_guards]->_y = nline * this->scale;
 					defined_guards++;
+					this->_data[nrow][nline] = EMPTY;
 				break;
 
 				case 'C': // Placement du chasseur
 					this->_guards[0] = new Chasseur (this);
 					this->_guards[0]->_x = nrow * this->scale;
 					this->_guards[0]->_y = nline * this->scale;
+					this->_data[nrow][nline] = EMPTY;
 				break;
 
 				case ' ':
@@ -349,11 +355,11 @@ void Labyrinthe::_fill_data(ifstream &file)
 }
 
 
-// Permet de créer une affiche horizontale
+// Permet de crÃ©er une affiche horizontale
 // =============================================================================
 // @defined_picts : index courant dans le tableau _picts
-// @nrow : numéro de la colonne où est placée l'image sur la carte du labyrinthe
-// @nline : numéro de la ligne où est placée l'image sur la carte du labyrinthe
+// @nrow : numÃ©ro de la colonne oÃ¹ est placÃ©e l'image sur la carte du labyrinthe
+// @nline : numÃ©ro de la ligne oÃ¹ est placÃ©e l'image sur la carte du labyrinthe
 
 void Labyrinthe::_stick_h_pict(int defined_picts, unsigned int nrow, int nline)
 {
@@ -364,11 +370,11 @@ void Labyrinthe::_stick_h_pict(int defined_picts, unsigned int nrow, int nline)
 }
 
 
-// Permet de créer une affiche verticale
+// Permet de crÃ©er une affiche verticale
 // =============================================================================
 // @defined_picts : index courant dans le tableau _picts
-// @nrow : numéro de la colonne où est placée l'image sur la carte du labyrinthe
-// @nline : numéro de la ligne où est placée l'image sur la carte du labyrinthe
+// @nrow : numÃ©ro de la colonne oÃ¹ est placÃ©e l'image sur la carte du labyrinthe
+// @nline : numÃ©ro de la ligne oÃ¹ est placÃ©e l'image sur la carte du labyrinthe
 
 void Labyrinthe::_stick_v_pict(int defined_picts, unsigned int nrow, int nline)
 {
@@ -379,17 +385,17 @@ void Labyrinthe::_stick_v_pict(int defined_picts, unsigned int nrow, int nline)
 }
 
 
-// Permet de générer les murs du labyrinthe
+// Permet de gÃ©nÃ©rer les murs du labyrinthe
 // =================================================================================
-// @file : fichier labyrinthe, pointeur placé après la déclaration des images
+// @file : fichier labyrinthe, pointeur placÃ© aprÃ¨s la dÃ©claration des images
 // 
 // 3e tour de boucle...
-// Parcours le fichier du labyrinthe afin de générer les murs.
-// Les booléens line_wall_b ainsi que tab_walls_b permettent de savoir si
-// la ligne ou la colonne courant est placée sur un mur et, le cas échéant,
-// repérer si le mur est vertical, horizontal et déduire une point d'arrivée.
+// Parcours le fichier du labyrinthe afin de gÃ©nÃ©rer les murs.
+// Les boolÃ©ens line_wall_b ainsi que tab_walls_b permettent de savoir si
+// la ligne ou la colonne courant est placÃ©e sur un mur et, le cas Ã©chÃ©ant,
+// repÃ©rer si le mur est vertical, horizontal et dÃ©duire une point d'arrivÃ©e.
 // Les variables line_wall_index et tab_walls_index permettent de garder la position
-// d'origine du mur (i.e. le dernier '+' rencontré)
+// d'origine du mur (i.e. le dernier '+' rencontrÃ©)
 
 void Labyrinthe::_create_walls(ifstream &file)
 {
@@ -468,9 +474,9 @@ void Labyrinthe::_create_walls(ifstream &file)
 }
 
 
-// Affiche les variables définies à des fins de debug
+// Affiche les variables dÃ©finies Ã  des fins de debug
 // ===================================================
-// Variables affichées :
+// Variables affichÃ©es :
 // Nombre de murs
 // Nombre d'images
 // Nombre de caisses
@@ -480,7 +486,7 @@ void Labyrinthe::_create_walls(ifstream &file)
 // Echelle de l'environnement
 // Chemin des fichiers images
 // Matrice de collisions (_data)
-// Position du trésor
+// Position du trÃ©sor
 // Positions des murs
 // Positions des caisses
 // Positions du chasseur et des gardiens
@@ -515,5 +521,85 @@ void Labyrinthe::_debug()
 		<< this->_walls[i]._x1 << ";" << this->_walls[i]._y1 << " " << this->_walls[i]._x2 << ";" << this->_walls[i]._y2 << endl;
 	for (int i = 0; i < this->_nboxes; i++) cout << "BOXE " << i + 1 << ": " << this->_boxes[i]._x << ";" << this->_boxes[i]._y << endl;
 	for (int i = 0; i < this->_nguards; i++) cout << "GUARD " << i + 1 << ": " << this->_guards[i]->_x << ";" << this->_guards[i]->_y << endl;
+	cout << endl;
+	
+	for (int i = 0; i < this->height(); i++)
+	{
+		for (int j = 0; j < this->width(); j++)
+		{
+			if (this->_dist_mat[j][i] == UINT_MAX)
+				cout << "+";
+			else
+				cout << this->_dist_mat[j][i] % 10;
+			cout << " ";
+		}
+
+		cout << endl;
+	}
 	cout << "END OF DEBUG" << endl;	
+}
+
+void Labyrinthe::_init_dist_mat()
+{
+	queue<int*> q;
+	int* next_case;
+	bool** dist_mat_visited;
+
+	this->_dist_mat = new unsigned int*[this->width()];
+	dist_mat_visited = new bool*[this->width()];
+
+	for (int i = 0; i < this->width(); i++)
+	{
+		this->_dist_mat[i] = new unsigned int[this->height()];
+		dist_mat_visited[i] = new bool[this->height()];
+
+		for (int j = 0; j < this->height(); j++)
+		{
+			this->_dist_mat[i][j] = 0;
+			// Dist infinie
+			if (this->data(i,j))
+				this->_dist_mat[i][j] = UINT_MAX;
+			dist_mat_visited[i][j] = false;
+		}
+	}
+
+	this->_dist_mat[this->_treasor._x][this->_treasor._y] = 0;
+	dist_mat_visited[this->_treasor._x][this->_treasor._y] = true;
+	next_case = new int[2];
+	next_case[0] = this->_treasor._x;
+	next_case[1] = this->_treasor._y;
+	q.push(next_case);
+
+	while (!q.empty())
+	{
+		int* current_case;
+		current_case = q.front();
+		q.pop();
+
+		int x = current_case[0];
+		int y = current_case[1];
+
+		for (int i = -1; i <= 1; i++)
+		{
+			for (int j = -1; j <= 1; j++)
+			{
+
+				if (this->_dist_mat[x+i][y+j] != UINT_MAX && !dist_mat_visited[x+i][y+j])
+				{
+					dist_mat_visited[x+i][y+j] = true;
+					this->_dist_mat[x+i][y+j] = this->_dist_mat[x][y]+1;
+					next_case = new int[2];
+					next_case[0] = x+i;
+					next_case[1] = y+j;
+					q.push(next_case);
+				}
+			}
+		}
+
+		// LibÃ©ration de la mÃ©moire
+		delete[] current_case;
+	}
+
+	for (int i = 0; i < this->width(); i++) delete[] dist_mat_visited[i];
+	delete dist_mat_visited;
 }

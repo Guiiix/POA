@@ -7,13 +7,13 @@
 class Labyrinthe : public Environnement {
 private:
 	char**	_data;
-	char**	_dist_mat;
 	char	_picts_files[26][128]; // 26 affiches différentes max
 	int		_nlines;
 	int		_nrows;
 	int		_nguards_models;
+	unsigned int**	_dist_mat;
 	std::string* _guards_models;
-
+	
 	void	_parse_map(char*);
 	bool	_is_empty_line(std::string);
 	char	_get_first_char(std::string);
@@ -22,6 +22,7 @@ private:
 	void	_debug(void);
 	void	_stick_v_pict(int, unsigned int,int);
 	void	_stick_h_pict(int, unsigned int,int);
+	void	_init_dist_mat();
 	std::streampos _explore_and_configure(std::ifstream &file);
 
 public:
