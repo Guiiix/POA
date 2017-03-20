@@ -65,6 +65,7 @@ Labyrinthe::Labyrinthe (char* filename)
 
 	this->_parse_map(filename);
 	this->_init_dist_mat();
+	this->_debug();
 }
 
 // Lancement du parsing
@@ -107,7 +108,6 @@ void Labyrinthe::_parse_map(char* filename)
 	}
 
 	else cout << "Le fichier " << filename << " n'existe pas." << endl;
-
 }
 
 

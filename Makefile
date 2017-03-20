@@ -5,8 +5,8 @@ FMOD		= fmod/4.3
 WFMOD		= fmod/Win-4.3
 MFMOD		= /Developer/FMOD\ Programmers\ API\ Mac/api/inc
 
-O			= Labyrinthe.o Chasseur.o
-OBJ			= Labyrinthe.obj Chasseur.obj
+O			= Labyrinthe.o Chasseur.o Gardien.o
+OBJ			= Labyrinthe.obj Chasseur.obj Gardien.obj
 
 WLIBGLUT	= Libs/glut32.lib
 WINCGLUT	= Libs/include
@@ -45,3 +45,4 @@ clean:
 
 Labyrinthe.o:	Labyrinthe.h Chasseur.h Gardien.h
 Chasseur.o: Chasseur.cpp Chasseur.h
+Gardien.o: Gardien.cpp Gardien.h

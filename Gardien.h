@@ -7,13 +7,17 @@ class Labyrinthe;
 
 class Gardien : public Mover {
 
-	
+enum Mode {ATT, DEF, PAT};
+
+private:
+	Mode _mode;
+	float _protection_potential;
+	void _calc_pp(void);
 public:
-	Gardien (Labyrinthe* l, const char* modele) : Mover (120, 80, l, modele)
-	{}
+	Gardien (Labyrinthe* l, const char* modele);
 
 	// mon gardien pense très mal!
-	void update (void) {};
+	void update (void);
 	// et ne bouge pas!
 	bool move (double dx, double dy) { return false; }
 	// ne sait pas tirer sur un ennemi.
