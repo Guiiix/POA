@@ -5,6 +5,7 @@
 #include <time.h>
 #include <iostream>
 #include <cmath>
+#include <cstdlib>
 
 #define PI 3.14159265
 
