@@ -10,6 +10,7 @@ using namespace std;
 
 bool Chasseur::move_aux (double dx, double dy)
 {
+	update();
 	if (EMPTY == _l -> data ((int)((_x + dx) / Environnement::scale),
 							 (int)((_y + dy) / Environnement::scale)))
 	{
@@ -87,14 +88,13 @@ void Chasseur::fire (int angle_vertical)
 
 void Chasseur::update()
 {
-	partie_terminee(true);
 	int case_x = this->_x / this->_l->scale;
 	int case_y = this->_y / this->_l->scale;
 	cout << "Chasseur case_x : " << case_x << endl;
 	cout << "Chasseur case_y : " << case_y << endl;
-	cout << "treasor case x : " << (this->_l->_treasor)._x;
-	cout << "treasor case x : " << (this->_l->_treasor)._y;
-	if (case_x == (this->_l->_treasor)._x && case_y == (this->_l->_treasor)._y)
+	cout << "treasor case x : " << (this->_l->_treasor)._x << endl;
+	cout << "treasor case x : " << (this->_l->_treasor)._y << endl;
+	if ( ( abs ( case_x - _l->_treasor._x ) <= 1 ) && ( abs ( case_y - _l->_treasor._y ) <= 1))
 		partie_terminee(true);
 }
 
