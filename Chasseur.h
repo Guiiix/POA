@@ -9,8 +9,10 @@ class Labyrinthe;
 
 class Chasseur : public Mover {
 private:
+	char _lifes;
 	// accepte ou non un deplacement.
 	bool move_aux (double dx, double dy);
+	void display_lifes(void);
 public:
 	/*
 	 *	Le son...
@@ -30,6 +32,7 @@ public:
 	bool process_fireball (float dx, float dy);
 	// tire sur un ennemi.
 	void fire (int angle_vertical);
+	void loose_life(void);
 };
 
 #endif

@@ -1,6 +1,8 @@
 #include "Chasseur.h"
 #include <iostream>
 #include <cmath>
+#include <string.h>
+#include <stdlib.h>
 
 /*
  *	Tente un deplacement.
@@ -31,6 +33,8 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 	_hunter_hit = new Sound ("sons/hunter_hit.wav");
 	if (_wall_hit == 0)
 		_wall_hit = new Sound ("sons/hit_wall.wav");
+	_lifes = '5';
+	display_lifes();
 }
 
 /*
@@ -47,9 +51,6 @@ bool Chasseur::process_fireball (float dx, float dy)
 	if (EMPTY == _l -> data ((int)((_fb -> get_x () + dx) / Environnement::scale),
 							 (int)((_fb -> get_y () + dy) / Environnement::scale)))
 	{
-		message ("Woooshh ..... %d", (int) dist2);
-		// il y a la place.
-
 		bool hit = false;
 		for (int i = 1; i < this->_l->_nguards; i++)
 		{
@@ -70,7 +71,6 @@ bool Chasseur::process_fireball (float dx, float dy)
 	float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
 	// faire exploser la boule de feu avec un bruit fonction de la distance.
 	_wall_hit -> play (1. - dist2/dmax2);
-	message ("Booom...");
 	return false;
 }
 
@@ -80,7 +80,6 @@ bool Chasseur::process_fireball (float dx, float dy)
 
 void Chasseur::fire (int angle_vertical)
 {
-	message ("Woooshh...");
 	_hunter_fire -> play ();
 	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
 				 /* angles de visée */ angle_vertical, _angle);
@@ -96,5 +95,26 @@ void Chasseur::update()
 	cout << "treasor case x : " << (this->_l->_treasor)._y << endl;
 	if ( ( abs ( case_x - _l->_treasor._x ) <= 1 ) && ( abs ( case_y - _l->_treasor._y ) <= 1))
 		partie_terminee(true);
+}
+
+void Chasseur::display_lifes()
+{
+	char m[10];
+
+	bzero(m, 10);
+	
+
+	strcat(m, "Vies : ");
+	m[7] = _lifes;
+
+	message(m);
+}
+
+void Chasseur::loose_life()
+{
+	_lifes--;
+	display_lifes();
+	if (_lifes == '0')
+		partie_terminee(false);
 }
 
