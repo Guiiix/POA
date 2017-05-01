@@ -17,6 +17,7 @@ Gardien::Gardien(Labyrinthe* l, const char* modele) : Mover (120, 80, l, modele)
 	this->_mode = PAT;
 	this->_protection_potential = 0.0;
 	this->_moving_to_treasor = false;
+	this->_protection_potential_sum = 0.0;
 	
 }
 
@@ -51,6 +52,11 @@ void Gardien::_calc_pp()
 	cout << "DGUARD : " << dguard << endl;
 	this->_protection_potential = dmax/dguard;
 	cout << "Protection potential : " << this->_protection_potential << endl;
+
+	_protection_potential_sum = 0;
+
+	for (int i = 1; i < this->_l->_nguards; i++) 
+		_protection_potential_sum += ((Gardien *) (this->_l->_guards[i]))->get_protection_potential();
 }
 
 bool Gardien::move (double dx, double dy)
@@ -93,9 +99,13 @@ void Gardien::_def_actions()
 	{	
 		cout << "Current index way to treasor : " << this->_current_index_way_treasor << endl;
 
-		// On s'arrête à côté du trésor
+		// On s'arrête à côté du trésor au maximum
 		if (this->_current_index_way_treasor == this->_way_to_treasor_len - 2)
 			this->_moving_to_treasor = false;
+		
+		else if (this->_protection_potential_sum > TREASOR_PROTECTION_THREASHOLD && _protection_potential > (30 + rand() % 40))
+			this->_moving_to_treasor = false;
+
 		else
 		{
 			cout << "we are at " << pos_x << ";" << pos_y << endl;
@@ -108,6 +118,11 @@ void Gardien::_def_actions()
 		}
 
 	}
+
+	else
+	{
+		this->_angle += 10;
+	}
 }
 
 void Gardien::_att_actions()
@@ -117,18 +132,13 @@ void Gardien::_att_actions()
 
 void Gardien::_pat_actions()
 {
-	float protection_potential_sum = 0;
-
 	cout << "I'm not a defender" << endl;
 		if (!this->move(1, 1)) 
 			this->_angle += rand() % 360;
 
-	for (int i = 1; i < this->_l->_nguards; i++) 
-		protection_potential_sum += ((Gardien *) (this->_l->_guards[i]))->get_protection_potential();
+	cout << "Protection_potential_sum : " << _protection_potential_sum << endl;
 
-	cout << "Protection_potential_sum : " << protection_potential_sum << endl;
-
-	if (protection_potential_sum < TREASOR_PROTECTION_THREASHOLD)
+	if (_protection_potential_sum < TREASOR_PROTECTION_THREASHOLD)
 	{
 		int number_of_defensers = 0;
 		for (int i = 1; i < this->_l->_nguards; i++)
@@ -203,6 +213,9 @@ bool Gardien::_find_way_to_treasor(int x, int y, bool** visited, int depth)
 			next[c][0] = ((Labyrinthe*)_l)->dist_mat(x + i,y + j);
 			next[c][1] = x + i;
 			next[c][2] = y + j;
+
+			// On exclue les diagonales
+			if (abs(i) == abs(j)) next[c][0] = UINT_MAX;
 
 			c++;
 		}
@@ -282,8 +295,12 @@ void Gardien::move_to(int x, int y)
 	cout << "moving to " << x << ";" << y << endl; 
 	// A revoir
 	if (x < 0 && y < 0) this->_angle = 135;
-	if (x < 0 && y ==  0) this->_angle = 90;
-	if (x < 0 && y >  0) this->_angle = 45;
+	if (x < 0 && y ==  0)this->_angle = 90;
+	if (x < 0 && y >  0)
+	{
+		cout << _y << endl;
+		this->_angle = 45;
+	}
 	if (x ==  0 && y < 0) this->_angle = 180;
 	if (x ==  0 && y >  0) this->_angle = 0;
 	if (x >  0 && y < 0) this->_angle = 225;

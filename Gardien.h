@@ -1,7 +1,7 @@
 #ifndef GARDIEN_H
 #define GARDIEN_H
 
-#define TREASOR_PROTECTION_THREASHOLD 100
+#define TREASOR_PROTECTION_THREASHOLD 400
 #define TREASOR_DEF_MAX_DISTANCE 4
 
 #include "Mover.h"
@@ -15,6 +15,7 @@ class Gardien : public Mover {
 private:
 	Mode _mode;
 	float _protection_potential;
+	float _protection_potential_sum;
 	bool _moving_to_treasor;
 	unsigned int** _way_to_treasor;
 	int _way_to_treasor_len;
