@@ -18,6 +18,7 @@ private:
 	bool _moving_to_treasor;
 	unsigned int** _way_to_treasor;
 	int _way_to_treasor_len;
+	int _current_index_way_treasor;
 
 	void _calc_pp(void);
 	void _att_actions(void);

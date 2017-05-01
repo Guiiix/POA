@@ -88,20 +88,23 @@ void Gardien::_def_actions()
 {
 	unsigned int pos_x = this->_x / this->_l->scale;
 	unsigned int pos_y = this->_y / this->_l->scale;
-
+	
 	if (this->_moving_to_treasor)
-	{
-		int i = 0;
+	{	
+		cout << "Current index way to treasor : " << this->_current_index_way_treasor << endl;
 
-		while (this->_way_to_treasor[i][0] != pos_x || this->_way_to_treasor[i][1] != pos_y) i++;
-		if (this->_way_to_treasor[i+1][0] == _l->_treasor._x &&
-			this->_way_to_treasor[i+1][1] == _l->_treasor._y)
+		// On s'arrête à côté du trésor
+		if (this->_current_index_way_treasor == this->_way_to_treasor_len - 2)
 			this->_moving_to_treasor = false;
 		else
 		{
 			cout << "we are at " << pos_x << ";" << pos_y << endl;
-			cout << "we're going to " <<  this->_way_to_treasor[i+1][0] << ";" << this->_way_to_treasor[i+1][1] << endl;
-			this->move_to(this->_way_to_treasor[i+1][0] - pos_x, this->_way_to_treasor[i+1][1] - pos_y);
+			cout << "we're going to " <<  this->_way_to_treasor[this->_current_index_way_treasor + 1][0] << ";" << this->_way_to_treasor[this->_current_index_way_treasor + 1][1] << endl;
+			this->move_to(this->_way_to_treasor[this->_current_index_way_treasor + 1][0] - pos_x, this->_way_to_treasor[this->_current_index_way_treasor + 1][1] - pos_y);
+			
+			if (pos_x == _way_to_treasor[_current_index_way_treasor+1][0] &&
+				pos_y == _way_to_treasor[_current_index_way_treasor+1][1])
+				this->_current_index_way_treasor++;
 		}
 
 	}
@@ -116,8 +119,14 @@ void Gardien::_pat_actions()
 {
 	float protection_potential_sum = 0;
 
+	cout << "I'm not a defender" << endl;
+		if (!this->move(1, 1)) 
+			this->_angle += rand() % 360;
+
 	for (int i = 1; i < this->_l->_nguards; i++) 
 		protection_potential_sum += ((Gardien *) (this->_l->_guards[i]))->get_protection_potential();
+
+	cout << "Protection_potential_sum : " << protection_potential_sum << endl;
 
 	if (protection_potential_sum < TREASOR_PROTECTION_THREASHOLD)
 	{
@@ -134,12 +143,6 @@ void Gardien::_pat_actions()
 			this->_move_to_treasor();
 		}
 	}
-
-	else
-	{
-		if (!this->move(1, 1)) 
-			this->_angle += rand() % 360;
-	} 
 }
 
 void Gardien::_move_to_treasor()
@@ -160,12 +163,13 @@ void Gardien::_move_to_treasor()
 	
 	if (this->_find_way_to_treasor(this->_x / Environnement::scale, this->_y / Environnement::scale, visited, 1))
 	{
-		cout << endl << "!!! Found the way !!!" << endl;
+		cout << endl << "!!! Found the way !!! ( "  << this->_way_to_treasor_len << " ) " << endl;
 		this->_way_to_treasor[0][0] = _x / Environnement::scale;
 		this->_way_to_treasor[0][1] = _y / Environnement::scale;
+		this->_current_index_way_treasor = 0;
 		for (int i = 0; i < this->_way_to_treasor_len; i++)
 		{
-			cout << this->_way_to_treasor[i][0] << ";" << this->_way_to_treasor[i][1] << endl; 
+			cout << this->_way_to_treasor[i][0] << ";" << this->_way_to_treasor[i][1] << " ( "<< i << " ) " << endl; 
 		}
 	}
 
@@ -245,7 +249,7 @@ bool Gardien::_find_way_to_treasor(int x, int y, bool** visited, int depth)
 		{
 			cout << " --> [TREASOR] at depth " << depth << endl;
 			cout << next[i][0] << " (" << next[i][1] << ";" << next[i][2] << ")";
-			this->_way_to_treasor_len = depth;
+			this->_way_to_treasor_len = depth+1;
 			this->_way_to_treasor = new unsigned int*[depth+1];
 			for (int j = 0; j < depth+1; j++)
 			{
