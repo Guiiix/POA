@@ -1,8 +1,12 @@
 #include "Chasseur.h"
+#include <iostream>
+#include <cmath>
 
 /*
  *	Tente un deplacement.
  */
+
+using namespace std;
 
 bool Chasseur::move_aux (double dx, double dy)
 {
@@ -44,7 +48,21 @@ bool Chasseur::process_fireball (float dx, float dy)
 	{
 		message ("Woooshh ..... %d", (int) dist2);
 		// il y a la place.
-		return true;
+
+		bool hit = false;
+		for (int i = 1; i < this->_l->_nguards; i++)
+		{
+			cout << abs(this->_l->_guards[i]->_x - this->_x) << endl;
+			cout << abs(this->_l->_guards[i]->_y - this->_y) << endl << endl;
+			if ((abs(this->_l->_guards[i]->_x - _fb->get_x()) <= 5) && (abs(this->_l->_guards[i]->_y - _fb->get_y()) <= 3))
+			{
+				this->_l->_guards[i]->tomber();
+				hit = true;
+			}
+		}
+
+		if (!hit)
+			return true;
 	}
 	// collision...
 	// calculer la distance maximum en ligne droite.
@@ -66,3 +84,17 @@ void Chasseur::fire (int angle_vertical)
 	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
 				 /* angles de visée */ angle_vertical, _angle);
 }
+
+void Chasseur::update()
+{
+	partie_terminee(true);
+	int case_x = this->_x / this->_l->scale;
+	int case_y = this->_y / this->_l->scale;
+	cout << "Chasseur case_x : " << case_x << endl;
+	cout << "Chasseur case_y : " << case_y << endl;
+	cout << "treasor case x : " << (this->_l->_treasor)._x;
+	cout << "treasor case x : " << (this->_l->_treasor)._y;
+	if (case_x == (this->_l->_treasor)._x && case_y == (this->_l->_treasor)._y)
+		partie_terminee(true);
+}
+

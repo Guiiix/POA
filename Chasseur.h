@@ -25,7 +25,7 @@ public:
 		return move_aux (dx, dy) || move_aux (dx, 0.0) || move_aux (0.0, dy);
 	}
 	// le chasseur ne pense pas!
-	void update (void) {};
+	void update (void);
 	// fait bouger la boule de feu (ceci est une exemple, à vous de traiter les collisions spécifiques...)
 	bool process_fireball (float dx, float dy);
 	// tire sur un ennemi.

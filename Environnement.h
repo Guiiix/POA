@@ -7,6 +7,7 @@
 
 #define EMPTY	0		// case vide (ou on peut marcher!)
 
+extern void partie_terminee (bool gagne);
 extern void message (const char* format, ...);
 class Mover;
 

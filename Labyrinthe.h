@@ -19,7 +19,7 @@ private:
 	char	_get_first_char(std::string);
 	void	_fill_data(std::ifstream&);
 	void	_create_walls(std::ifstream&);
-	void	_debug(void);
+	
 	void	_stick_v_pict(int, unsigned int,int);
 	void	_stick_h_pict(int, unsigned int,int);
 	void	_init_dist_mat();
@@ -37,6 +37,7 @@ public:
 	{
 		return _dist_mat[i][j];
 	}
+	void	_debug(void);
 };
 
 #endif

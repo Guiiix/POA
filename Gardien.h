@@ -1,20 +1,35 @@
 #ifndef GARDIEN_H
 #define GARDIEN_H
 
+#define TREASOR_PROTECTION_THREASHOLD 100
+#define TREASOR_DEF_MAX_DISTANCE 4
+
 #include "Mover.h"
 
 class Labyrinthe;
 
-class Gardien : public Mover {
-
 enum Mode {ATT, DEF, PAT};
+
+class Gardien : public Mover {
 
 private:
 	Mode _mode;
 	float _protection_potential;
+	bool _moving_to_treasor;
+	unsigned int** _way_to_treasor;
+	int _way_to_treasor_len;
+
 	void _calc_pp(void);
+	void _att_actions(void);
+	void _def_actions(void);
+	void _pat_actions(void);
+	void _move_to_treasor(void);
+	bool _find_way_to_treasor(int x, int y, bool** visited, int depth);
 public:
 	Gardien (Labyrinthe* l, const char* modele);
+
+	// Getters
+	float get_protection_potential(void) { return this->_protection_potential; };
 
 	// mon gardien pense très mal!
 	void update (void);
@@ -24,6 +39,8 @@ public:
 	void fire (int angle_vertical) {}
 	// quand a faire bouger la boule de feu...
 	bool process_fireball (float dx, float dy) { return false; }
+
+	void move_to (int x, int y);
 };
 
 #endif
