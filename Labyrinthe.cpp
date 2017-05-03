@@ -36,7 +36,7 @@ Environnement* Environnement::init (char* filename)
 
 
 // Constructeur de classe
-//
+// ===========================================================================
 // @filename : nom du fichier contenant la carte du labyrinthe
 //
 // Initialise les différents membres de classe
@@ -538,6 +538,16 @@ void Labyrinthe::_debug()
 	}
 	cout << "END OF DEBUG" << endl;	
 }
+
+
+// Initialise la matrice des distances
+// ===================================
+// Créer dans un premier temps un tableau à double dimension
+// de la taille du labyrinthe.
+// Pour représenter une valeur infinie, on utilise la constante UINT_MAX
+// représentant la valeur maximale d'un entier non signé.
+// Dans un deuxième temps, un BFS est réalisé en partant du trésor réalisant
+// ainsi un parcours depuis le trésor.
 
 void Labyrinthe::_init_dist_mat()
 {

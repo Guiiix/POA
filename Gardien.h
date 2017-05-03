@@ -25,7 +25,7 @@ private:
 	void _att_actions(void);
 	void _def_actions(void);
 	void _pat_actions(void);
-	void _move_to_treasor(void);
+	bool _move_to_treasor(void);
 	bool _find_way_to_treasor(int x, int y, bool** visited, int depth);
 public:
 	Gardien (Labyrinthe* l, const char* modele);
@@ -42,7 +42,7 @@ public:
 	// quand a faire bouger la boule de feu...
 	bool process_fireball (float dx, float dy) { return false; }
 
-	void move_to (int x, int y);
+	bool move_to (int x, int y);
 };
 
 #endif

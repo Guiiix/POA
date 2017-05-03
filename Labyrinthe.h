@@ -19,10 +19,10 @@ private:
 	char	_get_first_char(std::string);
 	void	_fill_data(std::ifstream&);
 	void	_create_walls(std::ifstream&);
-	
 	void	_stick_v_pict(int, unsigned int,int);
 	void	_stick_h_pict(int, unsigned int,int);
 	void	_init_dist_mat();
+	void	_debug(void);
 	std::streampos _explore_and_configure(std::ifstream &file);
 
 public:
@@ -37,7 +37,6 @@ public:
 	{
 		return _dist_mat[i][j];
 	}
-	void	_debug(void);
 };
 
 #endif
