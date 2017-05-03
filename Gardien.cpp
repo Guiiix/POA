@@ -74,7 +74,7 @@ void Gardien::_def_actions()
 			this->_free_way_to_treasor();
 		}
 		
-		else if (this->_protection_potential_sum > TREASOR_PROTECTION_THREASHOLD && _protection_potential > (30 + rand() % 40))
+		else if (this->_protection_potential_sum > TREASOR_PROTECTION_DOWN_THREASHOLD && this->_current_index_way_treasor < TREASOR_DEF_MAX_DISTANCE)
 		{
 			this->_moving_to_treasor = false;
 			this->_free_way_to_treasor();
@@ -95,6 +95,12 @@ void Gardien::_def_actions()
 	else
 	{
 		this->_angle += 10;
+
+		if (_protection_potential_sum > TREASOR_PROTECTION_UP_THREASHOLD)
+		{
+			cout << "Becoming a patrouilleur" << endl;
+			this->_mode = PAT;
+		}
 	}
 }
 
@@ -124,7 +130,7 @@ void Gardien::_pat_actions()
 
 	cout << "Protection_potential_sum : " << _protection_potential_sum << endl;
 
-	if (_protection_potential_sum < TREASOR_PROTECTION_THREASHOLD)
+	if (_protection_potential_sum < TREASOR_PROTECTION_DOWN_THREASHOLD)
 	{
 		int number_of_defensers = 0;
 		for (int i = 1; i < this->_l->_nguards; i++)
@@ -164,7 +170,7 @@ void Gardien::_calc_pp()
 
 	cout << "DMAX : " << dmax << endl;
 	cout << "DGUARD : " << dguard << endl;
-	this->_protection_potential = dmax/dguard;
+	this->_protection_potential = dmax / dguard + (rand() % 20);
 	cout << "Protection potential : " << this->_protection_potential << endl;
 
 	_protection_potential_sum = 0;

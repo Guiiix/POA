@@ -33,7 +33,7 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 	_hunter_hit = new Sound ("sons/hunter_hit.wav");
 	if (_wall_hit == 0)
 		_wall_hit = new Sound ("sons/hit_wall.wav");
-	_lifes = '5';
+	_life = 100;
 	display_lifes();
 }
 
@@ -80,6 +80,7 @@ bool Chasseur::process_fireball (float dx, float dy)
 
 void Chasseur::fire (int angle_vertical)
 {
+	loose_life();
 	_hunter_fire -> play ();
 	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
 				 /* angles de visée */ angle_vertical, _angle);
@@ -99,22 +100,15 @@ void Chasseur::update()
 
 void Chasseur::display_lifes()
 {
-	char m[10];
-
-	bzero(m, 10);
-	
-
-	strcat(m, "Vies : ");
-	m[7] = _lifes;
-
-	message(m);
+	message("Vie restante : %d%c", _life, '%');
 }
 
 void Chasseur::loose_life()
 {
-	_lifes--;
+	_life -= 20;
+	if (_life < 0) _life = 0;
 	display_lifes();
-	if (_lifes == '0')
+	if (_life == 0)
 		partie_terminee(false);
 }
 

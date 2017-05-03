@@ -9,7 +9,7 @@ class Labyrinthe;
 
 class Chasseur : public Mover {
 private:
-	char _lifes;
+	int _life;
 	// accepte ou non un deplacement.
 	bool move_aux (double dx, double dy);
 	void display_lifes(void);
