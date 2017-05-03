@@ -27,7 +27,6 @@ Gardien::Gardien(Labyrinthe* l, const char* modele) : Mover (120, 80, l, modele)
 	this->_protection_potential = 0.0;
 	this->_moving_to_treasor = false;
 	this->_protection_potential_sum = 0.0;
-	
 }
 
 
@@ -94,7 +93,7 @@ void Gardien::_def_actions()
 
 	else
 	{
-		this->_angle += 10;
+		this->_angle = rand() % 360;
 
 		if (_protection_potential_sum > TREASOR_PROTECTION_UP_THREASHOLD)
 		{
