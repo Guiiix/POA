@@ -69,10 +69,16 @@ void Gardien::_def_actions()
 
 		// On s'arrête à côté du trésor au maximum
 		if (this->_current_index_way_treasor == this->_way_to_treasor_len - 2)
+		{
 			this->_moving_to_treasor = false;
+			this->_free_way_to_treasor();
+		}
 		
 		else if (this->_protection_potential_sum > TREASOR_PROTECTION_THREASHOLD && _protection_potential > (30 + rand() % 40))
+		{
 			this->_moving_to_treasor = false;
+			this->_free_way_to_treasor();
+		}
 
 		else
 		{
@@ -84,7 +90,6 @@ void Gardien::_def_actions()
 				pos_y == _way_to_treasor[_current_index_way_treasor+1][1])
 				this->_current_index_way_treasor++;
 		}
-
 	}
 
 	else
@@ -203,6 +208,7 @@ bool Gardien::move (double dx, double dy)
 	else return false;
 }
 
+
 // Déplace le gardien sur une case aux alentours
 // ===========================================================================
 // @x : décallage horizontal
@@ -280,6 +286,7 @@ bool Gardien::_move_to_treasor()
 	else return false;
 
 }
+
 
 // Cherche un chemin vers le trésor
 // ===========================================================================
@@ -383,4 +390,16 @@ bool Gardien::_find_way_to_treasor(int x, int y, bool** visited, int depth)
 	}
 
 	return false;
+}
+
+
+// Libère la mémoire du chemin vers le trésor
+// ===========================================================================
+
+void Gardien::_free_way_to_treasor()
+{
+	for (int i = 0; i < _way_to_treasor_len; i++) delete[] _way_to_treasor[i];
+	_way_to_treasor = NULL;
+	_way_to_treasor_len = 0;
+	_current_index_way_treasor = 0;
 }

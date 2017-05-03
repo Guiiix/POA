@@ -16,6 +16,7 @@ private:
 	Mode _mode;
 	float _protection_potential;
 	float _protection_potential_sum;
+
 	bool _moving_to_treasor;
 	unsigned int** _way_to_treasor;
 	int _way_to_treasor_len;
@@ -25,8 +26,10 @@ private:
 	void _att_actions(void);
 	void _def_actions(void);
 	void _pat_actions(void);
+
 	bool _move_to_treasor(void);
 	bool _find_way_to_treasor(int x, int y, bool** visited, int depth);
+	void _free_way_to_treasor(void);
 public:
 	Gardien (Labyrinthe* l, const char* modele);
 
