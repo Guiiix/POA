@@ -13,6 +13,7 @@ private:
 	// accepte ou non un deplacement.
 	bool move_aux (double dx, double dy);
 	void display_lifes(void);
+	void heal(void);
 public:
 	/*
 	 *	Le son...

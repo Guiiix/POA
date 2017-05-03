@@ -100,6 +100,13 @@ void Labyrinthe::_parse_map(char* filename)
 
 		this->_fill_data(file);
 
+		this->boxes_status = new BoxesStatus[this->_nboxes];
+		for (int i = 0; i < this->_nboxes; i++)
+		{
+			this->boxes_status[i].box = &(this->_boxes[i]);
+			this->boxes_status[i].opened = false;
+		}
+
 		file.clear();
 		file.seekg(lab_offset);
 		this->_walls = new Wall[this->_nwall];
@@ -519,7 +526,14 @@ void Labyrinthe::_debug()
 	cout << "TREASOR: " << this->_treasor._x << ";" << this->_treasor._y << endl;
 	for (int i = 0; i < this->_nwall; i++) cout << "WALL " << i + 1 << ": " 
 		<< this->_walls[i]._x1 << ";" << this->_walls[i]._y1 << " " << this->_walls[i]._x2 << ";" << this->_walls[i]._y2 << endl;
-	for (int i = 0; i < this->_nboxes; i++) cout << "BOXE " << i + 1 << ": " << this->_boxes[i]._x << ";" << this->_boxes[i]._y << endl;
+	for (int i = 0; i < this->_nboxes; i++)
+	{
+		cout << "BOXE " << i + 1 << ": " << this->_boxes[i]._x << ";" << this->_boxes[i]._y;
+		if (this->boxes_status[i].opened) cout << " -- opened --";
+		else cout << " -- closed --";
+		cout << endl;
+	}
+
 	for (int i = 0; i < this->_nguards; i++) cout << "GUARD " << i + 1 << ": " << this->_guards[i]->_x << ";" << this->_guards[i]->_y << endl;
 	cout << endl;
 	

@@ -4,6 +4,12 @@
 #include "Environnement.h"
 #include <string>
 
+struct BoxesStatus
+{
+	Box* box;
+	bool opened;
+};
+
 class Labyrinthe : public Environnement {
 private:
 	char**	_data;
@@ -29,10 +35,14 @@ public:
 	Labyrinthe (char*);
 	int width () { return _nrows;}	// retourne la largeur du labyrinthe.
 	int height () { return _nlines;}	// retourne la longueur du labyrinthe.
+	BoxesStatus* boxes_status;
+
+
 	char data (int i, int j)
 	{
 		return _data [i][j];
 	}	// retourne la case (i, j).
+
 	unsigned int dist_mat(int i, int j)
 	{
 		return _dist_mat[i][j];

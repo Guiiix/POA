@@ -1,4 +1,5 @@
 #include "Chasseur.h"
+#include "Labyrinthe.h"
 #include <iostream>
 #include <cmath>
 #include <string.h>
@@ -94,8 +95,24 @@ void Chasseur::update()
 	cout << "Chasseur case_y : " << case_y << endl;
 	cout << "treasor case x : " << (this->_l->_treasor)._x << endl;
 	cout << "treasor case x : " << (this->_l->_treasor)._y << endl;
+
+	// On a atteint le trésor !
 	if ( ( abs ( case_x - _l->_treasor._x ) <= 1 ) && ( abs ( case_y - _l->_treasor._y ) <= 1))
 		partie_terminee(true);
+
+	for (int i = 0; i < _l->_nboxes; i++)
+	{
+		if (((Labyrinthe *)_l)->boxes_status[i].opened )
+			cout << "--- opened ---" << endl;
+		else
+			cout << "--- closed ---" << endl;
+		// On a trouvé une caisse !
+		if ( ( abs ( case_x - ((Labyrinthe*)_l)->boxes_status[i].box->_x ) <= 1 ) && ( abs ( case_y - ((Labyrinthe *)_l)->boxes_status[i].box->_y ) <= 1) &&  !((Labyrinthe *)_l)->boxes_status[i].opened )
+		{
+			((Labyrinthe *)_l) -> boxes_status[i].opened = true;
+			heal();
+		}
+	}
 }
 
 void Chasseur::display_lifes()
@@ -112,3 +129,8 @@ void Chasseur::loose_life()
 		partie_terminee(false);
 }
 
+void Chasseur::heal()
+{
+	_life = 100;
+	display_lifes();
+}
