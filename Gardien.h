@@ -10,11 +10,12 @@
 
 class Labyrinthe;
 
-enum Mode {ATT, DEF, PAT};
+enum Mode {ATT, DEF, PAT, DEAD};
 
 class Gardien : public Mover {
 
 private:
+	int _life;
 	Mode _mode;
 	float _protection_potential;
 	float _protection_potential_sum;
@@ -32,6 +33,7 @@ private:
 	bool _move_to_treasor(void);
 	bool _find_way_to_treasor(int x, int y, bool** visited, int depth);
 	void _free_way_to_treasor(void);
+	void _die(void);
 public:
 	Gardien (Labyrinthe* l, const char* modele);
 
@@ -48,6 +50,7 @@ public:
 	bool process_fireball (float dx, float dy) { return false; }
 
 	bool move_to (int x, int y);
+	void hit(void);
 };
 
 #endif

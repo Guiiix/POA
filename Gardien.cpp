@@ -27,6 +27,7 @@ Gardien::Gardien(Labyrinthe* l, const char* modele) : Mover (120, 80, l, modele)
 	this->_protection_potential = 0.0;
 	this->_moving_to_treasor = false;
 	this->_protection_potential_sum = 0.0;
+	this->_life = 100;
 }
 
 
@@ -39,13 +40,16 @@ Gardien::Gardien(Labyrinthe* l, const char* modele) : Mover (120, 80, l, modele)
 
 void Gardien::update()
 {
-	cout << "--- Guard " << this << " ---" << endl;
-	cout << this->_x << ";" << this->_y << endl;
-	this->_calc_pp();
-	if (this->_mode == DEF) this->_def_actions();
-	if (this->_mode == PAT) this->_pat_actions();
-	if (this->_mode == ATT) this->_att_actions();
-	cout << "--- end ---" << endl << endl;
+	if (_mode != DEAD) 
+	{
+		cout << "--- Guard " << this << " ---" << endl;
+		cout << this->_x << ";" << this->_y << endl;
+		this->_calc_pp();
+		if (this->_mode == DEF) this->_def_actions();
+		if (this->_mode == PAT) this->_pat_actions();
+		if (this->_mode == ATT) this->_att_actions();
+		cout << "--- end ---" << endl << endl;
+	}
 }
 
 
@@ -407,4 +411,19 @@ void Gardien::_free_way_to_treasor()
 	_way_to_treasor = NULL;
 	_way_to_treasor_len = 0;
 	_current_index_way_treasor = 0;
+}
+
+
+void Gardien::hit()
+{
+	_life -= 20;
+	if (this->_life <= 0) _die();
+	else tomber();
+}
+
+
+void Gardien::_die()
+{
+	rester_au_sol();
+	_mode = DEAD;
 }
