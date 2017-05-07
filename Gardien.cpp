@@ -8,6 +8,9 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "Chasseur.h"
+#include "Sound.h"
+
 #define PI 3.14159265
 
 using namespace std;
@@ -23,11 +26,16 @@ using namespace std;
 
 Gardien::Gardien(Labyrinthe* l, const char* modele) : Mover (120, 80, l, modele)
 {
+	_guard_fire = new Sound ("sons/hunter_fire.wav");
+	_guard_hit = new Sound ("sons/hunter_hit.wav");
+	_wall_hit = new Sound ("sons/hit_wall.wav");
+
 	this->_mode = PAT;
 	this->_protection_potential = 0.0;
 	this->_moving_to_treasor = false;
 	this->_protection_potential_sum = 0.0;
 	this->_life = 100;
+	_last_fire = std::clock();
 }
 
 
@@ -42,13 +50,19 @@ void Gardien::update()
 {
 	if (_mode != DEAD) 
 	{
-		cout << "--- Guard " << this << " ---" << endl;
-		cout << this->_x << ";" << this->_y << endl;
+		//cout << "--- Guard " << this << " ---" << endl;
+		//cout << this->_x << ";" << this->_y << endl;
 		this->_calc_pp();
+		if (this->_hunter_right_here()) this->_mode = ATT;
+		if (this->_mode == ATT)
+		{
+			if (this->_hunter_right_here()) this->_att_actions();
+			else  this->_mode = PAT;
+		} 
+
 		if (this->_mode == DEF) this->_def_actions();
 		if (this->_mode == PAT) this->_pat_actions();
-		if (this->_mode == ATT) this->_att_actions();
-		cout << "--- end ---" << endl << endl;
+		//cout << "--- end ---" << endl << endl;
 	}
 }
 
@@ -68,8 +82,6 @@ void Gardien::_def_actions()
 	
 	if (this->_moving_to_treasor)
 	{	
-		cout << "Current index way to treasor : " << this->_current_index_way_treasor << endl;
-
 		// On s'arrête à côté du trésor au maximum
 		if (this->_current_index_way_treasor == this->_way_to_treasor_len - 2)
 		{
@@ -85,8 +97,6 @@ void Gardien::_def_actions()
 
 		else
 		{
-			cout << "we are at " << pos_x << ";" << pos_y << endl;
-			cout << "we're going to " <<  this->_way_to_treasor[this->_current_index_way_treasor + 1][0] << ";" << this->_way_to_treasor[this->_current_index_way_treasor + 1][1] << endl;
 			this->move_to(this->_way_to_treasor[this->_current_index_way_treasor + 1][0] - pos_x, this->_way_to_treasor[this->_current_index_way_treasor + 1][1] - pos_y);
 			
 			if (pos_x == _way_to_treasor[_current_index_way_treasor+1][0] &&
@@ -98,12 +108,8 @@ void Gardien::_def_actions()
 	else
 	{
 		this->_angle = rand() % 360;
-
-		if (_protection_potential_sum > TREASOR_PROTECTION_UP_THREASHOLD)
-		{
-			cout << "Becoming a patrouilleur" << endl;
-			this->_mode = PAT;
-		}
+		if (_protection_potential_sum > TREASOR_PROTECTION_UP_THREASHOLD) this->_mode = PAT;
+		if (_protection_potential_sum < TREASOR_PROTECTION_DOWN_THREASHOLD) this->_move_to_treasor();
 	}
 }
 
@@ -113,7 +119,13 @@ void Gardien::_def_actions()
 
 void Gardien::_att_actions()
 {
+	Mover* hunter = _l->_guards[0];
 
+	double x = hunter->_x - _x;
+	double y = hunter->_y - _y;
+
+	_angle = 180 * atan2(-x, y) / M_PI;
+	fire(0);
 }
 
 
@@ -127,11 +139,8 @@ void Gardien::_att_actions()
 
 void Gardien::_pat_actions()
 {
-	cout << "I'm not a defender" << endl;
-		if (!this->move(1, 1)) 
-			this->_angle += rand() % 360;
-
-	cout << "Protection_potential_sum : " << _protection_potential_sum << endl;
+	if (!this->move(1, 1)) 
+		this->_angle += rand() % 360;
 
 	if (_protection_potential_sum < TREASOR_PROTECTION_DOWN_THREASHOLD)
 	{
@@ -170,14 +179,9 @@ void Gardien::_calc_pp()
 
 	dguard = ((Labyrinthe*)this->_l)->dist_mat(this->_x / this->_l->scale, this->_y / this->_l->scale);
 
-
-	cout << "DMAX : " << dmax << endl;
-	cout << "DGUARD : " << dguard << endl;
 	this->_protection_potential = dmax / dguard + (rand() % 20);
-	cout << "Protection potential : " << this->_protection_potential << endl;
 
 	_protection_potential_sum = 0;
-
 	for (int i = 1; i < this->_l->_nguards; i++) 
 		_protection_potential_sum += ((Gardien *) (this->_l->_guards[i]))->get_protection_potential();
 }
@@ -202,9 +206,6 @@ bool Gardien::move (double dx, double dy)
 	
 	int cell_x = next_position_x / this->_l->scale;
 	int cell_y = next_position_y / this->_l->scale;
-
-	cout << "CELL X : " << cell_x << endl;
-	cout << "CELL Y : " << cell_y << endl;
 
 	// Si pas de collision
 	if (!(int)((Labyrinthe*)this->_l)->data(cell_x, cell_y))
@@ -231,24 +232,14 @@ bool Gardien::move (double dx, double dy)
 
 bool Gardien::move_to(int x, int y)
 {
-	cout << "moving to " << x << ";" << y << endl; 
-	// A revoir
 	if (x < 0 && y < 0) this->_angle = 135;
 	if (x < 0 && y ==  0)this->_angle = 90;
-	if (x < 0 && y >  0)
-	{
-		cout << _y << endl;
-		this->_angle = 45;
-	}
+	if (x < 0 && y >  0) this->_angle = 45;
 	if (x ==  0 && y < 0) this->_angle = 180;
 	if (x ==  0 && y >  0) this->_angle = 0;
 	if (x >  0 && y < 0) this->_angle = 225;
 	if (x >  0 && y ==  0) this->_angle = 270;
 	if (x >  0 && y >  0) this->_angle = 315;
-
-	cout << "x : " << x << endl;
-	cout << "y : " << y << endl;
-	cout << "Angle : " << this->_angle << endl;
 
 	return this->move(1, 1);
 }
@@ -414,6 +405,9 @@ void Gardien::_free_way_to_treasor()
 }
 
 
+// Blesse un gardien
+// ===========================================================================
+
 void Gardien::hit()
 {
 	_life -= 20;
@@ -422,8 +416,122 @@ void Gardien::hit()
 }
 
 
+// Fait mourir un gardien
+// ===========================================================================
+
 void Gardien::_die()
 {
 	rester_au_sol();
 	_mode = DEAD;
+}
+
+
+// Repère si le chasseur est en face du gardien
+// ===========================================================================
+
+bool Gardien::_hunter_right_here()
+{
+	Mover* hunter = this->_l->_guards[0];
+
+	// Calcul de la distance entre le gardien et le chasseur
+	int dst = sqrt ( pow ( this->_x - hunter->_x, 2 ) + pow ( this->_y - hunter->_y, 2));
+
+	// Calcul de la portée de vision du gardien
+	double view = VIEW * this->_life;
+
+
+	if (dst <= view) {
+		// récup cases joueur et gardien
+		int xa = hunter->_x / Environnement::scale;
+		int ya = hunter->_y / Environnement::scale;
+		int xb = _x / Environnement::scale;
+		int yb = _y / Environnement::scale;
+
+		// falsche cast en float
+		float x = xb;
+		float y = yb;
+		
+		// POURQUOI FAIRE C DEJA EN INT ?
+		int rx = xb;
+		int ry = yb;
+
+		//Calcul calcul de l'angle 
+		float angle = atan2(-(xa - xb), ya - yb);
+
+
+		float xv = -sin(angle);
+		float yv = cos(angle);
+
+		while (rx != xa || ry != ya) {
+			if (EMPTY != _l->data(rx, ry)){
+				return false;
+			}
+
+			x += xv;
+			y += yv;
+			rx = round(x);
+			ry = round(y);
+		}
+		return true;
+	}
+	return false;
+}
+
+
+// Repère si le chasseur est en face du gardien
+// ===========================================================================
+// @angle_vertical : permet d'ajuster l'angle vertical du tir
+//
+// Cette méthode est appelée lorsqu'un gardien détecte le chasseur.
+// Un temps entre deux tirs est défini en tant que constante
+// afin d'éviter de mitrailler le joueur.
+
+void Gardien::fire (int angle_vertical)
+{
+	if ((std::clock() - _last_fire) / 1000000 > GAP_BT_FIRE)
+	{
+		if (((Chasseur*)(this->_l->_guards[0]))->alive())
+		{
+			_last_fire = std::clock();
+			_guard_fire -> play ();
+			_fb -> init (_x, _y, 10., angle_vertical, -_angle);
+		}
+	}
+}
+
+
+// Manipule la boule de feu
+// ===========================================================================
+// @dx, vitesse x
+// @dy, vitesse y
+//
+// Permet de gérer les collisions de la boule de feu du gardien
+// En cas de contact avec le chasseur, la boule de feu explose
+// et la santé du chasseur se dégrade.
+
+bool Gardien::process_fireball (float dx, float dy)
+{
+	float	x = (_x - _fb -> get_x ()) / Environnement::scale;
+	float	y = (_y - _fb -> get_y ()) / Environnement::scale;
+	float	dist2 = x*x + y*y;
+
+	if (EMPTY == _l -> data ((int)((_fb -> get_x () + dx) / Environnement::scale),
+							 (int)((_fb -> get_y () + dy) / Environnement::scale)))
+	{
+		cout << "EMPTY" << endl;
+		bool hit = false;
+		cout << "FIRE : " << this->_l->_guards[0]->_x - _fb->get_x() << " / " << this->_l->_guards[0]->_y - _fb->get_y() << endl;
+		if ((abs(this->_l->_guards[0]->_x - _fb->get_x()) <= 5) && (abs(this->_l->_guards[0]->_y - _fb->get_y()) <= 5))
+		{
+			((Chasseur*)(this->_l->_guards[0]))->loose_life();
+			hit = true;
+		}
+
+		if (!hit) return true;
+	}
+
+	float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
+	_wall_hit -> play (1. - dist2/dmax2);
+	
+	return false;
 }

@@ -5,8 +5,12 @@
 #define TREASOR_PROTECTION_UP_THREASHOLD 400
 #define TREASOR_DEF_MAX_DISTANCE 20
 #define TREASOR_DEF_MIN_PP 30
+#define VIEW 1
+#define GAP_BT_FIRE 2
 
 #include "Mover.h"
+#include "Sound.h"
+#include <ctime>
 
 class Labyrinthe;
 
@@ -34,8 +38,14 @@ private:
 	bool _find_way_to_treasor(int x, int y, bool** visited, int depth);
 	void _free_way_to_treasor(void);
 	void _die(void);
+	bool _hunter_right_here(void);
+	std::clock_t _last_fire;
 public:
 	Gardien (Labyrinthe* l, const char* modele);
+
+	Sound*	_guard_fire;	// bruit de l'arme du gardien.
+	Sound*	_guard_hit;		// cri du gardien touché.
+	Sound*	_wall_hit;		// on a tapé un mur.
 
 	// Getters
 	float get_protection_potential(void) { return this->_protection_potential; };
@@ -45,9 +55,9 @@ public:
 	// et ne bouge pas!
 	bool move (double dx, double dy); 
 	// ne sait pas tirer sur un ennemi.
-	void fire (int angle_vertical) {}
+	void fire (int angle_vertical);
 	// quand a faire bouger la boule de feu...
-	bool process_fireball (float dx, float dy) { return false; }
+	bool process_fireball (float dx, float dy);
 
 	bool move_to (int x, int y);
 	void hit(void);
