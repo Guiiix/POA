@@ -181,9 +181,13 @@ void Gardien::_calc_pp()
 
 	this->_protection_potential = dmax / dguard + (rand() % 20);
 
-	_protection_potential_sum = 0;
+	float protection_potential_sum = 0;
+
 	for (int i = 1; i < this->_l->_nguards; i++) 
-		_protection_potential_sum += ((Gardien *) (this->_l->_guards[i]))->get_protection_potential();
+		protection_potential_sum += ((Gardien *) (this->_l->_guards[i]))->get_protection_potential();
+
+	float max = dmax * _l->_nguards;
+	_protection_potential_sum = (protection_potential_sum / max) * 100;
 }
 
 
@@ -432,6 +436,10 @@ void Gardien::_die()
 bool Gardien::_hunter_right_here()
 {
 	Mover* hunter = this->_l->_guards[0];
+	int pos_x = this->_x / Environnement::scale;
+	int pos_y = this->_y / Environnement::scale;
+	int pos_x_hunter = hunter->_x / Environnement::scale;
+	int pos_y_hunter = hunter->_y / Environnement::scale;
 
 	// Calcul de la distance entre le gardien et le chasseur
 	int dst = sqrt ( pow ( this->_x - hunter->_x, 2 ) + pow ( this->_y - hunter->_y, 2));
@@ -439,30 +447,21 @@ bool Gardien::_hunter_right_here()
 	// Calcul de la portée de vision du gardien
 	double view = VIEW * this->_life;
 
-
 	if (dst <= view) {
-		// récup cases joueur et gardien
-		int xa = hunter->_x / Environnement::scale;
-		int ya = hunter->_y / Environnement::scale;
-		int xb = _x / Environnement::scale;
-		int yb = _y / Environnement::scale;
-
-		// falsche cast en float
-		float x = xb;
-		float y = yb;
-		
-		// POURQUOI FAIRE C DEJA EN INT ?
-		int rx = xb;
-		int ry = yb;
-
 		//Calcul calcul de l'angle 
-		float angle = atan2(-(xa - xb), ya - yb);
+		float angle = atan2(-(pos_x_hunter - pos_x), pos_y_hunter - pos_y_hunter);
 
+		float x = pos_x;
+		float y = pos_y;
+		
+		int rx = pos_x;
+		int ry = pos_y;
 
 		float xv = -sin(angle);
 		float yv = cos(angle);
 
-		while (rx != xa || ry != ya) {
+		while (rx != pos_x_hunter || ry != pos_y_hunter) 
+		{
 			if (EMPTY != _l->data(rx, ry)){
 				return false;
 			}
@@ -532,6 +531,6 @@ bool Gardien::process_fireball (float dx, float dy)
 
 	float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
 	_wall_hit -> play (1. - dist2/dmax2);
-	
+
 	return false;
 }
