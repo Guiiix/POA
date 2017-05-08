@@ -441,7 +441,7 @@ bool Gardien::_hunter_right_here()
 
 	if (dst <= view) {
 		//Calcul calcul de l'angle 
-		float angle = atan2(-(pos_x_hunter - pos_x), pos_y_hunter - pos_y_hunter);
+		float angle = atan2(-(pos_x_hunter - pos_x), pos_y_hunter - pos_y);
 		float _x = -sin(angle);
 		float _y = cos(angle);
 		float x = pos_x;
