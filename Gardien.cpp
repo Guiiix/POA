@@ -117,11 +117,7 @@ void Gardien::_def_actions()
 void Gardien::_att_actions()
 {
 	Mover* hunter = _l->_guards[0];
-
-	double x = hunter->_x - _x;
-	double y = hunter->_y - _y;
-
-	_angle = 180 * atan2(-x, y) / M_PI;
+	_angle = 180 * atan2(-(hunter->_x - _x), hunter->_y - _y) / M_PI;
 	fire(0);
 }
 
@@ -446,29 +442,22 @@ bool Gardien::_hunter_right_here()
 	if (dst <= view) {
 		//Calcul calcul de l'angle 
 		float angle = atan2(-(pos_x_hunter - pos_x), pos_y_hunter - pos_y_hunter);
-
-		
-		
-		int round_x = pos_x;
-		int round_y = pos_y;
 		float _x = -sin(angle);
 		float _y = cos(angle);
 		float x = pos_x;
 		float y = pos_y;
 
-		while (pos_x_hunter != round_x || pos_y_hunter != round_y) 
+		while (pos_x_hunter != round(x) || pos_y_hunter != round(y)) 
 		{
-			if (_l->data(round_x, round_y) != EMPTY) return false;
+			if (_l->data(round(x), round(y)) != EMPTY) return false;
 
 			x += _x;
 			y += _y;
-			round_x = round(x);
-			round_y = round(y);
 		}
 
 		return true;
 	}
-	
+
 	return false;
 }
 
