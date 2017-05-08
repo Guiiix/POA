@@ -447,28 +447,28 @@ bool Gardien::_hunter_right_here()
 		//Calcul calcul de l'angle 
 		float angle = atan2(-(pos_x_hunter - pos_x), pos_y_hunter - pos_y_hunter);
 
+		
+		
+		int round_x = pos_x;
+		int round_y = pos_y;
+		float _x = -sin(angle);
+		float _y = cos(angle);
 		float x = pos_x;
 		float y = pos_y;
-		
-		int rx = pos_x;
-		int ry = pos_y;
 
-		float xv = -sin(angle);
-		float yv = cos(angle);
-
-		while (rx != pos_x_hunter || ry != pos_y_hunter) 
+		while (pos_x_hunter != round_x || pos_y_hunter != round_y) 
 		{
-			if (EMPTY != _l->data(rx, ry)){
-				return false;
-			}
+			if (_l->data(round_x, round_y) != EMPTY) return false;
 
-			x += xv;
-			y += yv;
-			rx = round(x);
-			ry = round(y);
+			x += _x;
+			y += _y;
+			round_x = round(x);
+			round_y = round(y);
 		}
+
 		return true;
 	}
+	
 	return false;
 }
 
