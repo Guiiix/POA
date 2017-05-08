@@ -56,8 +56,6 @@ bool Chasseur::process_fireball (float dx, float dy)
 		bool hit = false;
 		for (int i = 1; i < this->_l->_nguards; i++)
 		{
-			cout << abs(this->_l->_guards[i]->_x - this->_x) << endl;
-			cout << abs(this->_l->_guards[i]->_y - this->_y) << endl << endl;
 			if ((abs(this->_l->_guards[i]->_x - _fb->get_x()) <= 6) && (abs(this->_l->_guards[i]->_y - _fb->get_y()) <= 5))
 			{
 				((Gardien*)(this->_l->_guards[i]))->hit();

@@ -50,8 +50,6 @@ void Gardien::update()
 {
 	if (_mode != DEAD) 
 	{
-		//cout << "--- Guard " << this << " ---" << endl;
-		//cout << this->_x << ";" << this->_y << endl;
 		this->_calc_pp();
 		if (this->_hunter_right_here()) this->_mode = ATT;
 		if (this->_mode == ATT)
@@ -62,7 +60,6 @@ void Gardien::update()
 
 		if (this->_mode == DEF) this->_def_actions();
 		if (this->_mode == PAT) this->_pat_actions();
-		//cout << "--- end ---" << endl << endl;
 	}
 }
 
@@ -107,7 +104,7 @@ void Gardien::_def_actions()
 
 	else
 	{
-		this->_angle = rand() % 360;
+		this->_angle = (this->_angle + 1) % 360;
 		if (_protection_potential_sum > TREASOR_PROTECTION_UP_THREASHOLD) this->_mode = PAT;
 		if (_protection_potential_sum < TREASOR_PROTECTION_DOWN_THREASHOLD) this->_move_to_treasor();
 	}
@@ -152,7 +149,6 @@ void Gardien::_pat_actions()
 		}
 		if (number_of_defensers < (this->_l->_nguards / 2))
 		{
-			cout << "Becoming a defenser" << endl;
 			this->_mode = DEF;
 			this->_move_to_treasor();
 		}
@@ -186,7 +182,7 @@ void Gardien::_calc_pp()
 	for (int i = 1; i < this->_l->_nguards; i++) 
 		protection_potential_sum += ((Gardien *) (this->_l->_guards[i]))->get_protection_potential();
 
-	float max = dmax * _l->_nguards;
+	float max = dmax * (_l->_nguards - 1);
 	_protection_potential_sum = (protection_potential_sum / max) * 100;
 }
 
@@ -517,9 +513,7 @@ bool Gardien::process_fireball (float dx, float dy)
 	if (EMPTY == _l -> data ((int)((_fb -> get_x () + dx) / Environnement::scale),
 							 (int)((_fb -> get_y () + dy) / Environnement::scale)))
 	{
-		cout << "EMPTY" << endl;
 		bool hit = false;
-		cout << "FIRE : " << this->_l->_guards[0]->_x - _fb->get_x() << " / " << this->_l->_guards[0]->_y - _fb->get_y() << endl;
 		if ((abs(this->_l->_guards[0]->_x - _fb->get_x()) <= 5) && (abs(this->_l->_guards[0]->_y - _fb->get_y()) <= 5))
 		{
 			((Chasseur*)(this->_l->_guards[0]))->loose_life();

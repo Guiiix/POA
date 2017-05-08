@@ -65,7 +65,7 @@ Labyrinthe::Labyrinthe (char* filename)
 
 	this->_parse_map(filename);
 	this->_init_dist_mat();
-	this->_debug();
+	//this->_debug();
 }
 
 // Lancement du parsing
